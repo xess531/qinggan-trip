@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>青甘小环线 · 海拔变化图</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #0c1426 0%, #1a2744 50%, #0f1f3d 100%);
+            color: #e0e6f0;
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            font-size: 32px;
+            color: #fff;
+            margin-bottom: 6px;
+            letter-spacing: 2px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #7b8db8;
+            margin-bottom: 30px;
+            font-size: 15px;
+        }
+        #chart {
+            width: 100%;
+            height: 580px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 16px;
+            border: 1px solid rgba(255,255,255,0.06);
+        }
+        .legend-bar {
+            display: flex;
+            justify-content: center;
+            gap: 28px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: #9aa8c7;
+        }
+        .legend-dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            margin-top: 24px;
+        }
+        .stat-card {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
+            padding: 18px;
+            text-align: center;
+        }
+        .stat-card .label { font-size: 12px; color: #7b8db8; margin-bottom: 6px; }
+        .stat-card .value { font-size: 24px; font-weight: 700; }
+        .stat-card .unit { font-size: 12px; color: #7b8db8; font-weight: normal; }
+        .note {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 12px;
+            color: #556;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏔️ 青甘小环线 · 海拔变化图</h1>
+        <p class="subtitle">5天4晚 · 2026.05.02 – 05.06 · 西宁出发 → 青海湖 → 祁连 → 张掖 → 门源 → 西宁</p>
+
+        <div id="chart"></div>
+
+        <div class="legend-bar">
+            <div class="legend-item"><span class="legend-dot" style="background:#3b82f6"></span> Day 1 · 05.02 周六</div>
+            <div class="legend-item"><span class="legend-dot" style="background:#10b981"></span> Day 2 · 05.03 周日</div>
+            <div class="legend-item"><span class="legend-dot" style="background:#f59e0b"></span> Day 3 · 05.04 周一</div>
+            <div class="legend-item"><span class="legend-dot" style="background:#ef4444"></span> Day 4 · 05.05 周二</div>
+            <div class="legend-item"><span class="legend-dot" style="background:#a855f7"></span> Day 5 · 05.06 周三</div>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="label">🔺 最高海拔</div>
+                <div class="value" style="color:#ef4444">4,328 <span class="unit">米</span></div>
+                <div class="label">卓尔山最高峰</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">🔻 最低海拔</div>
+                <div class="value" style="color:#3b82f6">1,400 <span class="unit">米</span></div>
+                <div class="label">张掖市区</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">📈 最大爬升</div>
+                <div class="value" style="color:#10b981">2,928 <span class="unit">米</span></div>
+                <div class="label">张掖→卓尔山</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">📊 平均海拔</div>
+                <div class="value" style="color:#f59e0b">2,948 <span class="unit">米</span></div>
+                <div class="label">全程均值</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">📍 途经地点</div>
+                <div class="value" style="color:#a855f7">22 <span class="unit">个</span></div>
+                <div class="label">5天行程</div>
+            </div>
+        </div>
+        <p class="note">* 海拔数据综合自百度百科、携程、知乎等公开资料，部分为景区平均/观景台海拔，仅供参考</p>
+    </div>
+
+    <script>
+        var chart = echarts.init(document.getElementById('chart'));
+
+        // 按时间顺序的地点和海拔数据
+        var data = [
+            // Day 1 - 05.02
+            { name: '西宁曹家堡机场', alt: 2188, day: 1 },
+            { name: '贾小巷子\n(西宁市区)', alt: 2261, day: 1 },
+            { name: '日月山景区', alt: 3520, day: 1 },
+
+            // Day 2 - 05.03
+            { name: '青海湖\n东格尔观景台', alt: 3200, day: 2 },
+            { name: '青海湖\n尕日拉寺', alt: 3210, day: 2 },
+            { name: '青海湖断崖', alt: 3196, day: 2 },
+            { name: '大冬树山垭口', alt: 4120, day: 2 },
+            { name: '冰沟林海', alt: 3123, day: 2 },
+            { name: '祁连县城', alt: 2787, day: 2 },
+
+            // Day 3 - 05.04
+            { name: '卓尔山风景区\n(已开发最高)', alt: 3100, day: 3 },
+            { name: '卓尔后山骑马营', alt: 3200, day: 3 },
+            { name: '黑河大峡谷', alt: 3400, day: 3 },
+            { name: '祁连9号公路\n(最高点)', alt: 4300, day: 3 },
+            { name: '二尕公路', alt: 3800, day: 3 },
+            { name: '肃南县', alt: 2250, day: 3 },
+            { name: '张掖市区', alt: 1400, day: 3 },
+
+            // Day 4 - 05.05
+            { name: '七彩丹霞景区', alt: 2300, day: 4 },
+            { name: '马蹄寺景区', alt: 2700, day: 4 },
+            { name: '门源县城', alt: 2851, day: 4 },
+
+            // Day 5 - 05.06
+            { name: '俄博岭垭口', alt: 3685, day: 5 },
+            { name: '祁连山国家公园\n经幡观光点', alt: 3500, day: 5 },
+            { name: '岗什卡雪峰\n(观景区)', alt: 3800, day: 5 },
+            { name: '西宁曹家堡机场', alt: 2188, day: 5 },
+        ];
+
+        var names = data.map(function(d) { return d.name; });
+        var alts = data.map(function(d) { return d.alt; });
+
+        // 日期颜色
+        var dayColors = {
+            1: '#3b82f6',
+            2: '#10b981',
+            3: '#f59e0b',
+            4: '#ef4444',
+            5: '#a855f7'
+        };
+
+        // 生成每个点的颜色
+        var itemColors = data.map(function(d) { return dayColors[d.day]; });
+
+        // 生成渐变的区域颜色
+        var pieces = [];
+        var prevDay = 0;
+        data.forEach(function(d, i) {
+            if (d.day !== prevDay) {
+                pieces.push({
+                    gt: i > 0 ? i - 1 : 0,
+                    lte: i,
+                    color: dayColors[d.day]
+                });
+                prevDay = d.day;
+            } else {
+                if (pieces.length > 0) {
+                    pieces[pieces.length - 1].lte = i;
+                } else {
+                    pieces.push({ gt: 0, lte: i, color: dayColors[d.day] });
+                }
+            }
+        });
+
+        var option = {
+            tooltip: {
+                trigger: 'axis',
+                backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                borderColor: 'rgba(255,255,255,0.1)',
+                textStyle: { color: '#e0e6f0', fontSize: 13 },
+                formatter: function(params) {
+                    var p = params[0];
+                    var d = data[p.dataIndex];
+                    var dayLabel = ['', 'Day 1 · 05.02', 'Day 2 · 05.03', 'Day 3 · 05.04', 'Day 4 · 05.05', 'Day 5 · 05.06'][d.day];
+                    return '<div style="font-weight:700;margin-bottom:6px;color:' + dayColors[d.day] + '">' + dayLabel + '</div>' +
+                        '<div style="font-size:15px;font-weight:600;margin-bottom:4px;">' + d.name.replace('\n', ' ') + '</div>' +
+                        '<div style="font-size:20px;font-weight:700;">' + d.alt.toLocaleString() + ' <span style="font-size:13px;font-weight:normal;">米</span></div>';
+                }
+            },
+            grid: {
+                left: 70,
+                right: 40,
+                top: 40,
+                bottom: 120
+            },
+            xAxis: {
+                type: 'category',
+                data: names,
+                axisLabel: {
+                    rotate: 45,
+                    fontSize: 11,
+                    color: '#7b8db8',
+                    interval: 0,
+                    lineHeight: 14
+                },
+                axisLine: { lineStyle: { color: 'rgba(255,255,255,0.1)' } },
+                axisTick: { show: false },
+                splitLine: { show: false }
+            },
+            yAxis: {
+                type: 'value',
+                name: '海拔 (米)',
+                nameTextStyle: { color: '#7b8db8', fontSize: 12, padding: [0, 0, 0, 0] },
+                min: 1000,
+                max: 5000,
+                interval: 500,
+                axisLabel: {
+                    color: '#7b8db8',
+                    fontSize: 11,
+                    formatter: function(v) { return v.toLocaleString(); }
+                },
+                axisLine: { show: false },
+                splitLine: {
+                    lineStyle: { color: 'rgba(255,255,255,0.06)', type: 'dashed' }
+                }
+            },
+            visualMap: {
+                show: false,
+                dimension: 0,
+                pieces: pieces
+            },
+            series: [
+                {
+                    type: 'line',
+                    data: alts,
+                    smooth: 0.3,
+                    symbol: 'circle',
+                    symbolSize: function(value, params) {
+                        // 高海拔点大一点
+                        if (value >= 4000) return 12;
+                        if (value >= 3500) return 10;
+                        return 8;
+                    },
+                    itemStyle: {
+                        color: function(params) {
+                            return dayColors[data[params.dataIndex].day];
+                        },
+                        borderColor: '#fff',
+                        borderWidth: 2
+                    },
+                    lineStyle: {
+                        width: 3,
+                        shadowColor: 'rgba(59, 130, 246, 0.3)',
+                        shadowBlur: 10
+                    },
+                    areaStyle: {
+                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                            { offset: 0, color: 'rgba(59, 130, 246, 0.25)' },
+                            { offset: 0.5, color: 'rgba(16, 185, 129, 0.1)' },
+                            { offset: 1, color: 'rgba(15, 23, 42, 0)' }
+                        ])
+                    },
+                    label: {
+                        show: true,
+                        position: 'top',
+                        fontSize: 10,
+                        color: '#9aa8c7',
+                        formatter: function(params) {
+                            var v = params.value;
+                            if (v >= 4000 || v <= 1500 || params.dataIndex === 0 || params.dataIndex === data.length - 1) {
+                                return v.toLocaleString() + 'm';
+                            }
+                            return '';
+                        }
+                    },
+                    markLine: {
+                        silent: true,
+                        symbol: 'none',
+                        lineStyle: {
+                            color: 'rgba(239, 68, 68, 0.4)',
+                            type: 'dashed',
+                            width: 1
+                        },
+                        data: [
+                            {
+                                yAxis: 3000,
+                                label: {
+                                    formatter: '高原反应警戒线 3000m',
+                                    position: 'insideEndTop',
+                                    color: '#ef4444',
+                                    fontSize: 11
+                                }
+                            }
+                        ]
+                    },
+                    markPoint: {
+                        data: [
+                            {
+                                type: 'max',
+                                name: '最高',
+                                label: {
+                                    formatter: '最高 {c}m',
+                                    fontSize: 12,
+                                    fontWeight: 'bold'
+                                },
+                                itemStyle: { color: '#ef4444' }
+                            },
+                            {
+                                type: 'min',
+                                name: '最低',
+                                label: {
+                                    formatter: '最低 {c}m',
+                                    fontSize: 12,
+                                    fontWeight: 'bold'
+                                },
+                                symbolOffset: [0, 10],
+                                itemStyle: { color: '#3b82f6' }
+                            }
+                        ]
+                    }
+                }
+            ]
+        };
+
+        chart.setOption(option);
+        window.addEventListener('resize', function() { chart.resize(); });
+    </script>
+</body>
+</html>
