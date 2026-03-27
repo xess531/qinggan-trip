@@ -80,6 +80,37 @@
             font-size: 12px;
             color: #556;
         }
+
+        /* 移动端适配 */
+        @media (max-width: 768px) {
+            body { padding: 16px 12px; }
+            h1 { font-size: 22px; letter-spacing: 1px; }
+            .subtitle { font-size: 12px; margin-bottom: 18px; line-height: 1.6; }
+            #chart { height: 380px; border-radius: 12px; }
+            .legend-bar { gap: 12px 16px; margin-top: 16px; }
+            .legend-item { font-size: 11px; gap: 5px; }
+            .legend-dot { width: 10px; height: 10px; }
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+                margin-top: 18px;
+            }
+            .stat-card { padding: 14px 10px; border-radius: 10px; }
+            .stat-card .value { font-size: 20px; }
+            .stat-card .label { font-size: 11px; }
+            .note { font-size: 11px; margin-top: 16px; }
+        }
+
+        @media (max-width: 480px) {
+            body { padding: 12px 8px; }
+            h1 { font-size: 19px; }
+            .subtitle { font-size: 11px; }
+            #chart { height: 320px; }
+            .stats { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+            .stat-card .value { font-size: 18px; }
+            .legend-bar { gap: 8px 12px; }
+            .legend-item { font-size: 10px; }
+        }
     </style>
 </head>
 <body>
@@ -129,6 +160,9 @@
 
     <script>
         var chart = echarts.init(document.getElementById('chart'));
+
+        var isMobile = window.innerWidth <= 768;
+        var isSmall = window.innerWidth <= 480;
 
         // 按时间顺序的地点和海拔数据
         var data = [
@@ -217,20 +251,22 @@
                 }
             },
             grid: {
-                left: 70,
-                right: 40,
-                top: 40,
-                bottom: 120
+                left: isMobile ? 50 : 70,
+                right: isMobile ? 15 : 40,
+                top: isMobile ? 30 : 40,
+                bottom: isMobile ? 80 : 120
             },
             xAxis: {
                 type: 'category',
                 data: names,
                 axisLabel: {
-                    rotate: 45,
-                    fontSize: 11,
+                    rotate: isMobile ? 60 : 45,
+                    fontSize: isMobile ? 9 : 11,
                     color: '#7b8db8',
                     interval: 0,
-                    lineHeight: 14
+                    lineHeight: isMobile ? 12 : 14,
+                    overflow: 'truncate',
+                    width: isMobile ? 50 : 80
                 },
                 axisLine: { lineStyle: { color: 'rgba(255,255,255,0.1)' } },
                 axisTick: { show: false },
@@ -239,13 +275,13 @@
             yAxis: {
                 type: 'value',
                 name: '海拔 (米)',
-                nameTextStyle: { color: '#7b8db8', fontSize: 12, padding: [0, 0, 0, 0] },
+                nameTextStyle: { color: '#7b8db8', fontSize: isMobile ? 10 : 12, padding: [0, 0, 0, 0] },
                 min: 1000,
                 max: 5000,
-                interval: 500,
+                interval: isMobile ? 1000 : 500,
                 axisLabel: {
                     color: '#7b8db8',
-                    fontSize: 11,
+                    fontSize: isMobile ? 9 : 11,
                     formatter: function(v) { return v.toLocaleString(); }
                 },
                 axisLine: { show: false },
@@ -265,6 +301,11 @@
                     smooth: 0.3,
                     symbol: 'circle',
                     symbolSize: function(value, params) {
+                        if (isMobile) {
+                            if (value >= 4000) return 8;
+                            if (value >= 3500) return 7;
+                            return 6;
+                        }
                         // 高海拔点大一点
                         if (value >= 4000) return 12;
                         if (value >= 3500) return 10;
@@ -275,10 +316,10 @@
                             return dayColors[data[params.dataIndex].day];
                         },
                         borderColor: '#fff',
-                        borderWidth: 2
+                        borderWidth: isMobile ? 1 : 2
                     },
                     lineStyle: {
-                        width: 3,
+                        width: isMobile ? 2 : 3,
                         shadowColor: 'rgba(59, 130, 246, 0.3)',
                         shadowBlur: 10
                     },
@@ -290,7 +331,7 @@
                         ])
                     },
                     label: {
-                        show: true,
+                        show: !isMobile,
                         position: 'top',
                         fontSize: 10,
                         color: '#9aa8c7',
@@ -317,7 +358,7 @@
                                     formatter: '高原反应警戒线 3000m',
                                     position: 'insideEndTop',
                                     color: '#ef4444',
-                                    fontSize: 11
+                                    fontSize: isMobile ? 9 : 11
                                 }
                             }
                         ]
@@ -328,20 +369,22 @@
                                 type: 'max',
                                 name: '最高',
                                 label: {
-                                    formatter: '最高 {c}m',
-                                    fontSize: 12,
+                                    formatter: isMobile ? '{c}m' : '最高 {c}m',
+                                    fontSize: isMobile ? 10 : 12,
                                     fontWeight: 'bold'
                                 },
+                                symbolSize: isMobile ? 36 : 50,
                                 itemStyle: { color: '#ef4444' }
                             },
                             {
                                 type: 'min',
                                 name: '最低',
                                 label: {
-                                    formatter: '最低 {c}m',
-                                    fontSize: 12,
+                                    formatter: isMobile ? '{c}m' : '最低 {c}m',
+                                    fontSize: isMobile ? 10 : 12,
                                     fontWeight: 'bold'
                                 },
+                                symbolSize: isMobile ? 36 : 50,
                                 symbolOffset: [0, 10],
                                 itemStyle: { color: '#3b82f6' }
                             }
