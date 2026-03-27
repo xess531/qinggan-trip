@@ -5,11 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>青甘小环线 · 海拔变化图</title>
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+    <script src="https://map.qq.com/api/gljs?v=3&key=H4VBZ-YGC34-PQKU2-FRG33-JNNQH-ZKB5R&libraries=service"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg: #f7f8fc;
-            --bg-warm: #fefefe;
             --bg-card: #ffffff;
             --bg-card-hover: #f0f3ff;
             --border: rgba(0,0,0,0.06);
@@ -34,7 +34,6 @@
             min-height: 100vh;
             overflow-x: hidden;
         }
-        /* 顶部渐变装饰条 */
         body::before {
             content: '';
             position: fixed;
@@ -43,229 +42,161 @@
             background: linear-gradient(90deg, var(--blue), var(--green), var(--amber), var(--red), var(--purple));
             z-index: 100;
         }
-
         .page { position: relative; z-index: 1; padding: 48px 24px 60px; }
         .container { max-width: 1100px; margin: 0 auto; }
 
-        /* 头部 */
         .header { text-align: center; margin-bottom: 44px; }
         .header-badge {
-            display: inline-block;
-            padding: 5px 16px;
-            border-radius: 100px;
+            display: inline-block; padding: 5px 16px; border-radius: 100px;
             background: linear-gradient(135deg, rgba(78,124,246,0.1), rgba(155,109,255,0.1));
             border: 1px solid rgba(78,124,246,0.15);
-            color: var(--blue);
-            font-size: 11px;
-            font-weight: 700;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            margin-bottom: 18px;
+            color: var(--blue); font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 18px;
         }
-        h1 {
-            font-size: 38px;
-            font-weight: 800;
-            letter-spacing: -0.5px;
-            color: var(--text-primary);
-            margin-bottom: 10px;
-            line-height: 1.2;
-        }
-        .subtitle {
-            color: var(--text-secondary);
-            font-size: 14px;
-            font-weight: 400;
-            line-height: 1.8;
-            letter-spacing: 0.3px;
-        }
+        h1 { font-size: 38px; font-weight: 800; letter-spacing: -0.5px; color: var(--text-primary); margin-bottom: 10px; line-height: 1.2; }
+        .subtitle { color: var(--text-secondary); font-size: 14px; font-weight: 400; line-height: 1.8; letter-spacing: 0.3px; }
         .subtitle .sep { opacity: 0.25; margin: 0 6px; }
 
-        /* 图表区 */
+        /* 图表 */
         .chart-section { margin-bottom: 36px; }
         .chart-wrapper {
-            position: relative;
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: var(--shadow);
+            background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px;
+            overflow: hidden; box-shadow: var(--shadow); position: relative;
         }
         .chart-inner { padding: 24px 12px 8px; }
         #chart { width: 100%; height: 520px; }
-
-        .scroll-hint {
-            display: none;
-            text-align: center;
-            padding: 8px;
-            color: var(--text-muted);
-            font-size: 11px;
-            font-weight: 500;
-        }
-
-        /* 图例 */
+        .scroll-hint { display: none; text-align: center; padding: 8px; color: var(--text-muted); font-size: 11px; font-weight: 500; }
         .legend {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            padding: 14px 20px;
-            flex-wrap: wrap;
-            border-top: 1px solid var(--border);
-            background: rgba(247,248,252,0.6);
+            display: flex; justify-content: center; gap: 20px; padding: 14px 20px; flex-wrap: wrap;
+            border-top: 1px solid var(--border); background: rgba(247,248,252,0.6);
         }
-        .legend-chip {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 12px;
-            color: var(--text-secondary);
-            font-weight: 500;
-        }
-        .legend-chip i {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            display: inline-block;
+        .legend-chip { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-secondary); font-weight: 500; }
+        .legend-chip i { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+
+        /* 通用 section */
+        .section-title {
+            font-size: 12px; font-weight: 700; color: var(--text-muted);
+            text-transform: uppercase; letter-spacing: 2.5px; margin-bottom: 16px;
         }
 
-        /* 住宿时间轴 */
+        /* 每天起伏摘要 */
+        .daily-section { margin-bottom: 36px; }
+        .daily-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
+        .daily-card {
+            background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px;
+            padding: 18px 14px; position: relative; overflow: hidden;
+            box-shadow: var(--shadow); transition: all 0.3s ease;
+        }
+        .daily-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-hover); }
+        .daily-card::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+        }
+        .daily-card:nth-child(1)::before { background: var(--blue); }
+        .daily-card:nth-child(2)::before { background: var(--green); }
+        .daily-card:nth-child(3)::before { background: var(--amber); }
+        .daily-card:nth-child(4)::before { background: var(--red); }
+        .daily-card:nth-child(5)::before { background: var(--purple); }
+        .dc-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .dc-day { font-size: 11px; font-weight: 700; letter-spacing: 1px; }
+        .dc-date { font-size: 10px; color: var(--text-muted); font-weight: 600; }
+        .dc-flow {
+            display: flex; align-items: center; gap: 4px;
+            font-size: 12px; font-weight: 600; color: var(--text-secondary);
+            margin-bottom: 10px; flex-wrap: wrap; line-height: 1.8;
+        }
+        .dc-flow .val { font-weight: 800; font-family: 'Inter', sans-serif; }
+        .dc-flow .arr { color: var(--text-muted); font-size: 10px; }
+        .dc-flow .peak { color: var(--red); }
+        .dc-flow .low { color: var(--blue); }
+        .dc-stats { display: flex; gap: 8px; flex-wrap: wrap; }
+        .dc-tag {
+            font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 6px; letter-spacing: 0.3px;
+        }
+        .dc-tag.rise { background: rgba(232,93,93,0.08); color: var(--red); }
+        .dc-tag.drop { background: rgba(78,124,246,0.08); color: var(--blue); }
+        .dc-tag.warn { background: rgba(240,160,48,0.08); color: var(--amber); }
+
+        /* 住宿 */
         .timeline-section { margin-bottom: 36px; }
-        .section-title {
-            font-size: 12px;
-            font-weight: 700;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 2.5px;
-            margin-bottom: 16px;
-        }
-        .timeline {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 14px;
-        }
+        .timeline { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
         .timeline-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 22px 16px;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-            transition: all 0.3s ease;
-            box-shadow: var(--shadow);
+            background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px;
+            padding: 22px 16px; text-align: center; position: relative; overflow: hidden;
+            transition: all 0.3s ease; box-shadow: var(--shadow);
         }
-        .timeline-card:hover {
-            background: var(--bg-card-hover);
-            border-color: var(--border-hover);
-            transform: translateY(-3px);
-            box-shadow: var(--shadow-hover);
-        }
-        .timeline-card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0;
-            height: 3px;
-        }
-        .timeline-card:nth-child(1)::before { background: linear-gradient(90deg, var(--blue), rgba(78,124,246,0.15)); }
-        .timeline-card:nth-child(2)::before { background: linear-gradient(90deg, var(--green), rgba(34,192,136,0.15)); }
-        .timeline-card:nth-child(3)::before { background: linear-gradient(90deg, var(--amber), rgba(240,160,48,0.15)); }
-        .timeline-card:nth-child(4)::before { background: linear-gradient(90deg, var(--red), rgba(232,93,93,0.15)); }
-        .tc-night {
-            display: inline-block;
-            font-size: 10px;
-            font-weight: 700;
-            letter-spacing: 1px;
-            padding: 2px 8px;
-            border-radius: 4px;
-            margin-bottom: 10px;
-        }
+        .timeline-card:hover { background: var(--bg-card-hover); transform: translateY(-3px); box-shadow: var(--shadow-hover); }
+        .timeline-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+        .timeline-card:nth-child(1)::before { background: var(--blue); }
+        .timeline-card:nth-child(2)::before { background: var(--green); }
+        .timeline-card:nth-child(3)::before { background: var(--amber); }
+        .timeline-card:nth-child(4)::before { background: var(--red); }
+        .tc-night { display: inline-block; font-size: 10px; font-weight: 700; letter-spacing: 1px; padding: 2px 8px; border-radius: 4px; margin-bottom: 10px; }
         .timeline-card:nth-child(1) .tc-night { background: rgba(78,124,246,0.1); color: var(--blue); }
         .timeline-card:nth-child(2) .tc-night { background: rgba(34,192,136,0.1); color: var(--green); }
         .timeline-card:nth-child(3) .tc-night { background: rgba(240,160,48,0.1); color: var(--amber); }
         .timeline-card:nth-child(4) .tc-night { background: rgba(232,93,93,0.1); color: var(--red); }
-        .tc-date { font-size: 11px; color: var(--text-muted); font-weight: 600; letter-spacing: 0.5px; margin-bottom: 6px; }
+        .tc-date { font-size: 11px; color: var(--text-muted); font-weight: 600; margin-bottom: 6px; }
         .tc-place { font-size: 16px; font-weight: 700; color: var(--text-primary); margin-bottom: 6px; }
         .tc-alt { font-size: 24px; font-weight: 800; font-family: 'Inter', sans-serif; letter-spacing: -0.5px; }
         .tc-alt span { font-size: 12px; font-weight: 500; color: var(--text-muted); }
 
-        /* 统计 */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 14px;
-            margin-bottom: 36px;
+        /* 地图 */
+        .map-section { margin-bottom: 36px; }
+        .map-wrapper {
+            background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px;
+            overflow: hidden; box-shadow: var(--shadow);
         }
+        #mapContainer { width: 100%; height: 450px; }
+        .map-legend {
+            display: flex; justify-content: center; gap: 16px; padding: 12px; flex-wrap: wrap;
+            border-top: 1px solid var(--border); background: rgba(247,248,252,0.6);
+        }
+        .map-legend span { font-size: 11px; color: var(--text-secondary); font-weight: 500; }
+
+        /* 统计 */
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 36px; }
         .stat {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 20px 12px;
-            text-align: center;
-            transition: all 0.3s ease;
-            box-shadow: var(--shadow);
+            background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px;
+            padding: 20px 12px; text-align: center; transition: all 0.3s ease; box-shadow: var(--shadow);
         }
         .stat:hover { background: var(--bg-card-hover); transform: translateY(-2px); box-shadow: var(--shadow-hover); }
-        .stat-tag {
-            display: inline-block;
-            font-size: 10px;
-            font-weight: 700;
-            padding: 2px 8px;
-            border-radius: 4px;
-            margin-bottom: 10px;
-            letter-spacing: 0.5px;
-        }
+        .stat-tag { display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 4px; margin-bottom: 10px; letter-spacing: 0.5px; }
         .stat-value { font-size: 28px; font-weight: 800; font-family: 'Inter', sans-serif; line-height: 1; margin-bottom: 6px; letter-spacing: -0.5px; }
         .stat-value small { font-size: 13px; font-weight: 500; opacity: 0.4; }
         .stat-label { font-size: 11px; color: var(--text-muted); font-weight: 500; }
 
-        /* 底部 */
-        .footer {
-            text-align: center;
-            padding-top: 24px;
-            border-top: 1px solid var(--border);
-        }
+        .footer { text-align: center; padding-top: 24px; border-top: 1px solid var(--border); }
         .footer p { font-size: 11px; color: var(--text-muted); line-height: 1.8; }
         .footer .brand { margin-top: 8px; font-size: 10px; color: rgba(0,0,0,0.1); letter-spacing: 3px; text-transform: uppercase; font-weight: 700; }
 
-        /* === 移动端 === */
+        /* 移动端 */
         @media (max-width: 768px) {
             .page { padding: 32px 14px 40px; }
             h1 { font-size: 26px; }
             .subtitle { font-size: 12px; }
             .header { margin-bottom: 28px; }
-            .header-badge { font-size: 10px; padding: 4px 12px; }
-
-            .chart-inner {
-                overflow-x: auto;
-                overflow-y: hidden;
-                -webkit-overflow-scrolling: touch;
-                padding: 16px 0 0;
-            }
+            .chart-inner { overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch; padding: 16px 0 0; }
             .chart-inner::-webkit-scrollbar { height: 4px; }
-            .chart-inner::-webkit-scrollbar-track { background: transparent; }
             .chart-inner::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 2px; }
             #chart { width: 900px !important; min-width: 900px; height: 380px; }
             .scroll-hint { display: block; }
-
             .legend { gap: 10px; padding: 12px 14px; }
-            .legend-chip { font-size: 10px; gap: 4px; }
-            .legend-chip i { width: 6px; height: 6px; }
-
+            .legend-chip { font-size: 10px; }
+            .daily-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+            .daily-grid .daily-card:last-child { grid-column: span 2; }
             .timeline { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-            .timeline-card { padding: 16px 12px; border-radius: 14px; }
-            .tc-place { font-size: 14px; }
-            .tc-alt { font-size: 20px; }
-
+            .timeline-card { padding: 16px 12px; }
+            .tc-place { font-size: 14px; } .tc-alt { font-size: 20px; }
+            #mapContainer { height: 320px; }
             .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-            .stat { padding: 16px 10px; border-radius: 14px; }
-            .stat-value { font-size: 22px; }
-            .stat-label { font-size: 10px; }
+            .stat { padding: 16px 10px; } .stat-value { font-size: 22px; }
         }
-
         @media (max-width: 480px) {
             .page { padding: 24px 10px 32px; }
             h1 { font-size: 22px; }
             #chart { width: 800px !important; min-width: 800px; height: 340px; }
-            .timeline-card { padding: 14px 10px; }
-            .tc-alt { font-size: 17px; }
+            .daily-grid { grid-template-columns: 1fr; }
+            .daily-grid .daily-card:last-child { grid-column: span 1; }
+            #mapContainer { height: 280px; }
             .stat-value { font-size: 20px; }
         }
     </style>
@@ -282,11 +213,10 @@
         </p>
     </div>
 
+    <!-- 海拔图表 -->
     <div class="chart-section">
         <div class="chart-wrapper">
-            <div class="chart-inner">
-                <div id="chart"></div>
-            </div>
+            <div class="chart-inner"><div id="chart"></div></div>
             <div class="scroll-hint">← 左右滑动查看完整图表 →</div>
             <div class="legend">
                 <div class="legend-chip"><i style="background:var(--blue)"></i>Day 1 / 05.02</div>
@@ -299,6 +229,91 @@
         </div>
     </div>
 
+    <!-- 每天海拔起伏摘要 -->
+    <div class="daily-section">
+        <div class="section-title">每日海拔起伏</div>
+        <div class="daily-grid">
+            <div class="daily-card">
+                <div class="dc-head">
+                    <span class="dc-day" style="color:var(--blue)">DAY 1</span>
+                    <span class="dc-date">05.02 Sat</span>
+                </div>
+                <div class="dc-flow">
+                    <span class="val low">2188</span><span class="arr">→</span>
+                    <span class="val peak">3520</span><span class="arr">→</span>
+                    <span class="val">3200</span><span style="font-size:10px;color:var(--text-muted)">m</span>
+                </div>
+                <div class="dc-stats">
+                    <span class="dc-tag rise">+1332m 急升</span>
+                    <span class="dc-tag warn">日月山 3520m</span>
+                </div>
+            </div>
+            <div class="daily-card">
+                <div class="dc-head">
+                    <span class="dc-day" style="color:var(--green)">DAY 2</span>
+                    <span class="dc-date">05.03 Sun</span>
+                </div>
+                <div class="dc-flow">
+                    <span class="val">3200</span><span class="arr">→</span>
+                    <span class="val peak">4120</span><span class="arr">→</span>
+                    <span class="val">2787</span><span style="font-size:10px;color:var(--text-muted)">m</span>
+                </div>
+                <div class="dc-stats">
+                    <span class="dc-tag rise">+920m</span>
+                    <span class="dc-tag drop">-1333m</span>
+                    <span class="dc-tag warn">垭口 4120m</span>
+                </div>
+            </div>
+            <div class="daily-card">
+                <div class="dc-head">
+                    <span class="dc-day" style="color:var(--amber)">DAY 3</span>
+                    <span class="dc-date">05.04 Mon</span>
+                </div>
+                <div class="dc-flow">
+                    <span class="val">2787</span><span class="arr">→</span>
+                    <span class="val peak">4300</span><span class="arr">→</span>
+                    <span class="val low">1400</span><span style="font-size:10px;color:var(--text-muted)">m</span>
+                </div>
+                <div class="dc-stats">
+                    <span class="dc-tag rise">+1513m 急升</span>
+                    <span class="dc-tag drop">-2900m 急降</span>
+                </div>
+            </div>
+            <div class="daily-card">
+                <div class="dc-head">
+                    <span class="dc-day" style="color:var(--red)">DAY 4</span>
+                    <span class="dc-date">05.05 Tue</span>
+                </div>
+                <div class="dc-flow">
+                    <span class="val low">1400</span><span class="arr">→</span>
+                    <span class="val">2700</span><span class="arr">→</span>
+                    <span class="val">2851</span><span style="font-size:10px;color:var(--text-muted)">m</span>
+                </div>
+                <div class="dc-stats">
+                    <span class="dc-tag rise">+1451m 回升</span>
+                    <span class="dc-tag" style="background:rgba(34,192,136,0.08);color:var(--green)">相对平缓</span>
+                </div>
+            </div>
+            <div class="daily-card">
+                <div class="dc-head">
+                    <span class="dc-day" style="color:var(--purple)">DAY 5</span>
+                    <span class="dc-date">05.06 Wed</span>
+                </div>
+                <div class="dc-flow">
+                    <span class="val">2851</span><span class="arr">→</span>
+                    <span class="val peak">3800</span><span class="arr">→</span>
+                    <span class="val">2188</span><span style="font-size:10px;color:var(--text-muted)">m</span>
+                </div>
+                <div class="dc-stats">
+                    <span class="dc-tag rise">+949m</span>
+                    <span class="dc-tag drop">-1612m</span>
+                    <span class="dc-tag warn">3 处 3500m+</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 住宿 -->
     <div class="timeline-section">
         <div class="section-title">每晚住宿</div>
         <div class="timeline">
@@ -329,6 +344,18 @@
         </div>
     </div>
 
+    <!-- 腾讯地图 -->
+    <div class="map-section">
+        <div class="section-title">自驾路线总览</div>
+        <div class="map-wrapper">
+            <div id="mapContainer"></div>
+            <div class="map-legend">
+                <span>* 标注为途经地点，连线为大致行驶路线，实际路线请以导航为准</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 统计 -->
     <div class="stats-grid">
         <div class="stat">
             <div class="stat-tag" style="background:rgba(232,93,93,0.1);color:var(--red)">MAX</div>
@@ -361,44 +388,40 @@
 </div>
 
 <script>
-var isMobile = window.innerWidth <= 768;
-var chart = echarts.init(document.getElementById('chart'));
-
+// ====== 数据 ======
 var data = [
-    { name: '西宁机场',      fullName: '西宁曹家堡国际机场',        alt: 2188, day: 1 },
-    { name: '贾小巷子',      fullName: '贾小巷子（西宁市区）',      alt: 2261, day: 1 },
-    { name: '日月山',        fullName: '日月山景区',                alt: 3520, day: 1 },
-    { name: '东格尔观景台',  fullName: '青海湖 · 东格尔观景台',     alt: 3200, day: 1, stay: true },
-
-    { name: '尕日拉寺',      fullName: '青海湖 · 尕日拉寺',         alt: 3210, day: 2 },
-    { name: '青海湖断崖',    fullName: '青海湖断崖',                alt: 3196, day: 2 },
-    { name: '大冬树山垭口',  fullName: '大冬树山垭口',              alt: 4120, day: 2 },
-    { name: '冰沟林海',      fullName: '冰沟林海',                  alt: 3123, day: 2 },
-    { name: '祁连县城',      fullName: '祁连县城',                  alt: 2787, day: 2, stay: true },
-
-    { name: '卓尔山',        fullName: '卓尔山风景区',              alt: 3100, day: 3 },
-    { name: '卓尔后山骑马',  fullName: '卓尔后山骑马营',            alt: 3200, day: 3 },
-    { name: '黑河大峡谷',    fullName: '黑河大峡谷',                alt: 3400, day: 3 },
-    { name: '9号公路垭口',   fullName: '祁连9号公路垭口',           alt: 4300, day: 3 },
-    { name: '二尕公路',      fullName: '二尕公路',                  alt: 3800, day: 3 },
-    { name: '肃南县',        fullName: '肃南裕固族自治县',          alt: 2250, day: 3 },
-    { name: '张掖市区',      fullName: '张掖市区',                  alt: 1400, day: 3, stay: true },
-
-    { name: '七彩丹霞',      fullName: '张掖七彩丹霞景区',          alt: 2300, day: 4 },
-    { name: '马蹄寺',        fullName: '马蹄寺风光旅游区',          alt: 2700, day: 4 },
-    { name: '门源县城',      fullName: '门源回族自治县',            alt: 2851, day: 4, stay: true },
-
-    { name: '俄博岭垭口',    fullName: '俄博岭垭口',               alt: 3685, day: 5 },
-    { name: '经幡观光点',    fullName: '祁连山国家公园 · 经幡观光点', alt: 3500, day: 5 },
-    { name: '岗什卡雪峰',    fullName: '岗什卡雪峰观景区',          alt: 3800, day: 5 },
-    { name: '西宁机场',      fullName: '西宁曹家堡国际机场',        alt: 2188, day: 5 },
+    { name: '西宁机场',      fullName: '西宁曹家堡国际机场',        alt: 2188, day: 1, lat: 36.5275, lng: 102.0430 },
+    { name: '贾小巷子',      fullName: '贾小巷子（西宁市区）',      alt: 2261, day: 1, lat: 36.6232, lng: 101.7782 },
+    { name: '日月山',        fullName: '日月山景区',                alt: 3520, day: 1, lat: 36.5947, lng: 101.0917 },
+    { name: '东格尔观景台',  fullName: '青海湖 · 东格尔观景台',     alt: 3200, day: 1, stay: true, lat: 36.7060, lng: 100.6550 },
+    { name: '尕日拉寺',      fullName: '青海湖 · 尕日拉寺',         alt: 3210, day: 2, lat: 36.8540, lng: 100.4720 },
+    { name: '青海湖断崖',    fullName: '青海湖断崖',                alt: 3196, day: 2, lat: 36.9100, lng: 100.4200 },
+    { name: '大冬树山垭口',  fullName: '大冬树山垭口',              alt: 4120, day: 2, lat: 37.7510, lng: 100.2670 },
+    { name: '冰沟林海',      fullName: '冰沟林海',                  alt: 3123, day: 2, lat: 38.1293, lng: 100.1974 },
+    { name: '祁连县城',      fullName: '祁连县城',                  alt: 2787, day: 2, stay: true, lat: 38.1775, lng: 100.2535 },
+    { name: '卓尔山',        fullName: '卓尔山风景区',              alt: 3100, day: 3, lat: 38.2350, lng: 100.2470 },
+    { name: '卓尔后山骑马',  fullName: '卓尔后山骑马营',            alt: 3200, day: 3, lat: 38.2500, lng: 100.2500 },
+    { name: '黑河大峡谷',    fullName: '黑河大峡谷',                alt: 3400, day: 3, lat: 38.3500, lng: 100.1800 },
+    { name: '9号公路垭口',   fullName: '祁连9号公路垭口',           alt: 4300, day: 3, lat: 38.4500, lng: 100.1200 },
+    { name: '二尕公路',      fullName: '二尕公路',                  alt: 3800, day: 3, lat: 38.5500, lng: 100.0800 },
+    { name: '肃南县',        fullName: '肃南裕固族自治县',          alt: 2250, day: 3, lat: 38.8363, lng: 99.6160 },
+    { name: '张掖市区',      fullName: '张掖市区',                  alt: 1400, day: 3, stay: true, lat: 38.9260, lng: 100.4518 },
+    { name: '七彩丹霞',      fullName: '张掖七彩丹霞景区',          alt: 2300, day: 4, lat: 38.9500, lng: 100.1133 },
+    { name: '马蹄寺',        fullName: '马蹄寺风光旅游区',          alt: 2700, day: 4, lat: 38.5480, lng: 100.3350 },
+    { name: '门源县城',      fullName: '门源回族自治县',            alt: 2851, day: 4, stay: true, lat: 37.3767, lng: 101.6228 },
+    { name: '俄博岭垭口',    fullName: '俄博岭垭口',               alt: 3685, day: 5, lat: 37.7800, lng: 101.3500 },
+    { name: '经幡观光点',    fullName: '祁连山国家公园 · 经幡观光点', alt: 3500, day: 5, lat: 37.5500, lng: 101.5000 },
+    { name: '岗什卡雪峰',    fullName: '岗什卡雪峰观景区',          alt: 3800, day: 5, lat: 37.2280, lng: 101.4590 },
+    { name: '西宁机场',      fullName: '西宁曹家堡国际机场',        alt: 2188, day: 5, lat: 36.5275, lng: 102.0430 },
 ];
 
 var names = data.map(function(d) { return d.name; });
 var alts = data.map(function(d) { return d.alt; });
-
 var dayColors = { 1: '#4e7cf6', 2: '#22c088', 3: '#f0a030', 4: '#e85d5d', 5: '#9b6dff' };
 var dayBg = { 1: 'rgba(78,124,246,0.04)', 2: 'rgba(34,192,136,0.04)', 3: 'rgba(240,160,48,0.04)', 4: 'rgba(232,93,93,0.04)', 5: 'rgba(155,109,255,0.04)' };
+
+// ====== ECharts 图表 ======
+var chart = echarts.init(document.getElementById('chart'));
 
 var pieces = [], prevDay = 0;
 data.forEach(function(d, i) {
@@ -406,21 +429,42 @@ data.forEach(function(d, i) {
     else if (pieces.length) pieces[pieces.length - 1].lte = i;
 });
 
-// 住宿标记：用「住」字
 var stayMarks = [];
 data.forEach(function(d, i) {
     if (d.stay) {
         stayMarks.push({
             coord: [i, d.alt],
-            symbol: 'pin',
-            symbolSize: 38,
+            symbol: 'pin', symbolSize: 38,
             itemStyle: { color: '#e6a817', borderColor: '#fff', borderWidth: 2, shadowColor: 'rgba(230,168,23,0.4)', shadowBlur: 10 },
             label: { show: true, formatter: '住', fontSize: 12, fontWeight: 700, color: '#fff', offset: [0, -3] }
         });
     }
 });
 
-// 天背景区域
+// 海拔骤变标注（相邻点落差 >= 800m）
+var surgeMarks = [];
+for (var i = 1; i < data.length; i++) {
+    var diff = data[i].alt - data[i-1].alt;
+    if (Math.abs(diff) >= 800) {
+        var midX = (i - 1 + i) / 2;
+        var midY = (data[i].alt + data[i-1].alt) / 2;
+        var label = diff > 0 ? ('+' + diff + 'm') : (diff + 'm');
+        surgeMarks.push({
+            coord: [i, Math.max(data[i].alt, data[i-1].alt)],
+            symbol: 'diamond', symbolSize: 16,
+            symbolOffset: [0, -14],
+            itemStyle: { color: diff > 0 ? 'rgba(232,93,93,0.7)' : 'rgba(78,124,246,0.7)', borderColor: '#fff', borderWidth: 1 },
+            label: {
+                show: true, position: 'top',
+                formatter: label,
+                fontSize: 9, fontWeight: 700, fontFamily: 'Inter, sans-serif',
+                color: diff > 0 ? '#e85d5d' : '#4e7cf6',
+                distance: 4
+            }
+        });
+    }
+}
+
 var dayAreas = [], dayStart = {};
 data.forEach(function(d, i) { if (!dayStart[d.day]) dayStart[d.day] = i; });
 Object.keys(dayStart).forEach(function(day) {
@@ -429,46 +473,38 @@ Object.keys(dayStart).forEach(function(day) {
     dayAreas.push([ { xAxis: data[start].name, itemStyle: { color: dayBg[day] } }, { xAxis: data[end].name } ]);
 });
 
-var option = {
-    animation: true,
-    animationDuration: 1500,
-    animationEasing: 'cubicInOut',
+chart.setOption({
+    animation: true, animationDuration: 1500, animationEasing: 'cubicInOut',
     tooltip: {
-        trigger: 'axis',
-        backgroundColor: '#fff',
-        borderColor: 'rgba(0,0,0,0.06)',
-        borderRadius: 12,
-        padding: [14, 18],
-        textStyle: { color: '#1a1f36', fontSize: 13, fontFamily: 'Inter, Noto Sans SC, sans-serif' },
+        trigger: 'axis', backgroundColor: '#fff', borderColor: 'rgba(0,0,0,0.06)', borderRadius: 12,
+        padding: [14, 18], textStyle: { color: '#1a1f36', fontSize: 13, fontFamily: 'Inter, Noto Sans SC, sans-serif' },
         extraCssText: 'box-shadow:0 8px 40px rgba(0,0,0,0.08);',
         formatter: function(params) {
             var p = params[0], d = data[p.dataIndex];
             var labels = ['', 'Day 1 / 05.02 Sat', 'Day 2 / 05.03 Sun', 'Day 3 / 05.04 Mon', 'Day 4 / 05.05 Tue', 'Day 5 / 05.06 Wed'];
             var stay = d.stay ? '<div style="margin-top:8px;padding:4px 10px;background:rgba(230,168,23,0.1);border-radius:6px;color:#b8860b;font-size:11px;font-weight:600;display:inline-block">STAY / 当晚住宿</div>' : '';
+            // 与上一个点的落差
+            var diffInfo = '';
+            if (p.dataIndex > 0) {
+                var diff = d.alt - data[p.dataIndex - 1].alt;
+                var diffColor = diff > 0 ? '#e85d5d' : '#4e7cf6';
+                var diffLabel = diff > 0 ? '+' + diff : '' + diff;
+                diffInfo = '<div style="margin-top:6px;font-size:11px;color:' + diffColor + ';font-weight:600">较上一站 ' + diffLabel + 'm</div>';
+            }
             return '<div style="font-weight:700;font-size:11px;color:' + dayColors[d.day] + ';letter-spacing:1px;margin-bottom:8px">' + labels[d.day] + '</div>' +
                 '<div style="font-size:16px;font-weight:700;color:#1a1f36;margin-bottom:6px">' + d.fullName + '</div>' +
-                '<div style="font-size:30px;font-weight:800;font-family:Inter,sans-serif;color:#1a1f36;letter-spacing:-1px">' + d.alt.toLocaleString() + '<span style="font-size:14px;font-weight:400;color:#9ca3c2;margin-left:4px">m</span></div>' + stay;
+                '<div style="font-size:30px;font-weight:800;font-family:Inter,sans-serif;color:#1a1f36;letter-spacing:-1px">' + d.alt.toLocaleString() + '<span style="font-size:14px;font-weight:400;color:#9ca3c2;margin-left:4px">m</span></div>' +
+                diffInfo + stay;
         }
     },
     grid: { left: 60, right: 30, top: 40, bottom: 100 },
     xAxis: {
-        type: 'category',
-        data: names,
-        axisLabel: {
-            rotate: 45,
-            fontSize: 11,
-            fontFamily: 'Noto Sans SC, sans-serif',
-            fontWeight: 500,
-            color: function(v, i) { return dayColors[data[i].day]; },
-            interval: 0,
-            margin: 12
-        },
-        axisLine: { lineStyle: { color: 'rgba(0,0,0,0.06)' } },
-        axisTick: { show: false },
+        type: 'category', data: names,
+        axisLabel: { rotate: 45, fontSize: 11, fontFamily: 'Noto Sans SC, sans-serif', fontWeight: 500, color: function(v, i) { return dayColors[data[i].day]; }, interval: 0, margin: 12 },
+        axisLine: { lineStyle: { color: 'rgba(0,0,0,0.06)' } }, axisTick: { show: false },
     },
     yAxis: {
-        type: 'value',
-        name: 'Elevation (m)',
+        type: 'value', name: 'Elevation (m)',
         nameTextStyle: { color: '#9ca3c2', fontSize: 11, fontWeight: 600, padding: [0, 0, 8, 0] },
         min: 1000, max: 5000, interval: 500,
         axisLabel: { color: '#9ca3c2', fontSize: 10, fontFamily: 'Inter, sans-serif', formatter: function(v) { return v >= 1000 ? (v/1000).toFixed(1) + 'k' : v; } },
@@ -477,45 +513,19 @@ var option = {
     },
     visualMap: { show: false, dimension: 0, pieces: pieces },
     series: [{
-        type: 'line',
-        data: alts,
-        smooth: 0.35,
-        symbol: 'circle',
+        type: 'line', data: alts, smooth: 0.35, symbol: 'circle',
         symbolSize: function(v) { return v >= 4000 ? 11 : v >= 3500 ? 9 : 7; },
-        itemStyle: {
-            color: function(p) { return dayColors[data[p.dataIndex].day]; },
-            borderColor: '#fff',
-            borderWidth: 2
-        },
+        itemStyle: { color: function(p) { return dayColors[data[p.dataIndex].day]; }, borderColor: '#fff', borderWidth: 2 },
         lineStyle: { width: 3, shadowColor: 'rgba(78,124,246,0.12)', shadowBlur: 12, shadowOffsetY: 4 },
-        areaStyle: {
-            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                { offset: 0, color: 'rgba(78,124,246,0.12)' },
-                { offset: 0.4, color: 'rgba(34,192,136,0.04)' },
-                { offset: 1, color: 'transparent' }
-            ])
-        },
+        areaStyle: { color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [ { offset: 0, color: 'rgba(78,124,246,0.12)' }, { offset: 0.4, color: 'rgba(34,192,136,0.04)' }, { offset: 1, color: 'transparent' } ]) },
         label: {
-            show: true,
-            position: 'top',
-            fontSize: 9,
-            fontFamily: 'Inter, sans-serif',
-            fontWeight: 600,
-            color: 'rgba(0,0,0,0.2)',
-            formatter: function(p) {
-                var v = p.value;
-                if (v >= 4000 || v <= 1500) return v.toLocaleString();
-                return '';
-            }
+            show: true, position: 'top', fontSize: 9, fontFamily: 'Inter, sans-serif', fontWeight: 600, color: 'rgba(0,0,0,0.2)',
+            formatter: function(p) { return (p.value >= 4000 || p.value <= 1500) ? p.value.toLocaleString() : ''; }
         },
         markLine: {
-            silent: true,
-            symbol: 'none',
+            silent: true, symbol: 'none',
             lineStyle: { color: 'rgba(232,93,93,0.2)', type: [6, 4], width: 1 },
-            data: [{
-                yAxis: 3000,
-                label: { formatter: 'Altitude Warning Line   3,000m', position: 'insideEndTop', color: 'rgba(232,93,93,0.5)', fontSize: 10, fontWeight: 600 }
-            }]
+            data: [{ yAxis: 3000, label: { formatter: 'Altitude Warning Line   3,000m', position: 'insideEndTop', color: 'rgba(232,93,93,0.5)', fontSize: 10, fontWeight: 600 } }]
         },
         markArea: { silent: true, data: dayAreas },
         markPoint: {
@@ -523,13 +533,78 @@ var option = {
             data: [
                 { type: 'max', symbolSize: 46, label: { formatter: 'MAX {c}', fontSize: 10, fontWeight: 700 }, itemStyle: { color: '#e85d5d', shadowColor: 'rgba(232,93,93,0.3)', shadowBlur: 10 } },
                 { type: 'min', symbolSize: 46, symbolOffset: [0, 8], label: { formatter: 'MIN {c}', fontSize: 10, fontWeight: 700 }, itemStyle: { color: '#4e7cf6', shadowColor: 'rgba(78,124,246,0.3)', shadowBlur: 10 } }
-            ].concat(stayMarks)
+            ].concat(stayMarks).concat(surgeMarks)
         }
     }]
-};
-
-chart.setOption(option);
+});
 window.addEventListener('resize', function() { chart.resize(); });
+
+// ====== 腾讯地图 ======
+var map = new TMap.Map('mapContainer', {
+    center: new TMap.LatLng(37.8, 100.5),
+    zoom: 7,
+    mapStyleId: 'style1',
+});
+
+// 途经点标记
+var markerStyles = {};
+for (var d = 1; d <= 5; d++) {
+    markerStyles['day' + d] = new TMap.MarkerStyle({
+        width: 24, height: 24, anchor: { x: 12, y: 12 },
+        color: dayColors[d],
+        src: 'data:image/svg+xml,' + encodeURIComponent(
+            '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">' +
+            '<circle cx="12" cy="12" r="10" fill="' + dayColors[d] + '" stroke="white" stroke-width="2"/>' +
+            '<circle cx="12" cy="12" r="4" fill="white"/></svg>'
+        ),
+    });
+    markerStyles['day' + d + '_stay'] = new TMap.MarkerStyle({
+        width: 32, height: 32, anchor: { x: 16, y: 16 },
+        src: 'data:image/svg+xml,' + encodeURIComponent(
+            '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">' +
+            '<circle cx="16" cy="16" r="14" fill="#e6a817" stroke="white" stroke-width="2"/>' +
+            '<text x="16" y="21" text-anchor="middle" font-size="13" font-weight="700" fill="white" font-family="sans-serif">住</text></svg>'
+        ),
+    });
+}
+
+var markerGeometries = [];
+var seen = {};
+data.forEach(function(d, i) {
+    var key = d.lat + ',' + d.lng;
+    if (seen[key] && !d.stay) return;
+    seen[key] = true;
+    markerGeometries.push({
+        id: 'p' + i,
+        styleId: d.stay ? 'day' + d.day + '_stay' : 'day' + d.day,
+        position: new TMap.LatLng(d.lat, d.lng),
+        properties: { title: d.fullName + ' (' + d.alt + 'm)' }
+    });
+});
+
+new TMap.MultiMarker({ map: map, styles: markerStyles, geometries: markerGeometries });
+
+// 路线连线（用折线连接所有途经点）
+var routePaths = data.map(function(d) { return new TMap.LatLng(d.lat, d.lng); });
+
+new TMap.MultiPolyline({
+    map: map,
+    styles: {
+        route: new TMap.PolylineStyle({
+            color: 'rgba(78,124,246,0.6)',
+            width: 4,
+            borderWidth: 2,
+            borderColor: 'rgba(78,124,246,0.15)',
+            lineCap: 'round',
+            dashArray: [8, 4],
+        }),
+    },
+    geometries: [{ id: 'route', styleId: 'route', paths: routePaths }],
+});
+
+// 点击标记显示信息
+var infoWindow = new TMap.InfoWindow({ map: map, position: new TMap.LatLng(37.8, 100.5), offset: { x: 0, y: -32 } });
+infoWindow.close();
 </script>
 </body>
 </html>
