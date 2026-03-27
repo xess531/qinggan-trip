@@ -255,25 +255,26 @@ data.forEach(function(x,i) {
     else if (pcs.length) pcs[pcs.length-1].lte=i;
 });
 
-// stay marks
+// stay marks — 放在数据点下方，避免和顶部标签重叠
 var sm = [];
 data.forEach(function(x,i) {
     if (x.s) sm.push({
-        coord:[i,x.a], symbol:'pin', symbolSize:34,
-        itemStyle:{color:'#d4a017',borderColor:'#fff',borderWidth:2,shadowColor:'rgba(212,160,23,0.3)',shadowBlur:8},
-        label:{show:true,formatter:'住',fontSize:11,fontWeight:700,color:'#fff',offset:[0,-3]}
+        coord:[i,x.a], symbol:'pin', symbolSize:28,
+        symbolOffset:[0, 18],
+        itemStyle:{color:'#d4a017',borderColor:'#fff',borderWidth:1.5,shadowColor:'rgba(212,160,23,0.25)',shadowBlur:6},
+        label:{show:true,formatter:'住',fontSize:10,fontWeight:700,color:'#fff',offset:[0,-2]}
     });
 });
 
-// surge marks (diff >= 800)
+// surge marks — 只用小菱形标记，不显示文字标签（避免重叠），详情看tooltip
 var sg = [];
 for (var i=1;i<data.length;i++) {
     var df = data[i].a - data[i-1].a;
     if (Math.abs(df)>=800) sg.push({
         coord:[i, Math.max(data[i].a, data[i-1].a)],
-        symbol:'diamond', symbolSize:12, symbolOffset:[0,-10],
-        itemStyle:{color: df>0?'rgba(232,93,93,0.6)':'rgba(78,124,246,0.6)', borderColor:'#fff', borderWidth:1},
-        label:{show:true, position:'top', formatter:(df>0?'+':'')+df+'m', fontSize:8, fontWeight:700, color:df>0?'#e85d5d':'#4e7cf6', distance:2}
+        symbol:'diamond', symbolSize:8, symbolOffset:[0,-8],
+        itemStyle:{color: df>0?'rgba(232,93,93,0.5)':'rgba(78,124,246,0.5)', borderColor:'#fff', borderWidth:1},
+        label:{show:false}
     });
 }
 
@@ -323,8 +324,7 @@ chart.setOption({
         lineStyle:{width:2.5,shadowColor:'rgba(78,124,246,0.08)',shadowBlur:8,shadowOffsetY:3},
         areaStyle:{color:new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:'rgba(78,124,246,0.08)'},{offset:0.5,color:'rgba(34,192,136,0.03)'},{offset:1,color:'transparent'}])},
         label:{
-            show:true,position:'top',fontSize:8,fontFamily:'Inter',fontWeight:600,color:'rgba(0,0,0,0.18)',
-            formatter:function(p){var v=p.value;return(v>=4000||v<=1500)?v.toLocaleString():'';}
+            show:false
         },
         markLine:{
             silent:true,symbol:'none',
@@ -333,8 +333,8 @@ chart.setOption({
         },
         markArea:{silent:true,data:da},
         markPoint:{animation:true,data:[
-            {type:'max',symbolSize:40,label:{formatter:'MAX {c}',fontSize:9,fontWeight:700},itemStyle:{color:'#e85d5d',shadowColor:'rgba(232,93,93,0.2)',shadowBlur:8}},
-            {type:'min',symbolSize:40,symbolOffset:[0,6],label:{formatter:'MIN {c}',fontSize:9,fontWeight:700},itemStyle:{color:'#4e7cf6',shadowColor:'rgba(78,124,246,0.2)',shadowBlur:8}}
+            {type:'max',symbolSize:36,label:{formatter:'{c}m',fontSize:9,fontWeight:700},itemStyle:{color:'#e85d5d',shadowColor:'rgba(232,93,93,0.15)',shadowBlur:6}},
+            {type:'min',symbolSize:36,symbolOffset:[0,6],label:{formatter:'{c}m',fontSize:9,fontWeight:700},itemStyle:{color:'#4e7cf6',shadowColor:'rgba(78,124,246,0.15)',shadowBlur:6}}
         ].concat(sm).concat(sg)}
     }]
 });
