@@ -8,78 +8,65 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-deep: #060b18;
-            --bg-card: rgba(255,255,255,0.04);
-            --bg-card-hover: rgba(255,255,255,0.07);
-            --border: rgba(255,255,255,0.06);
-            --border-hover: rgba(255,255,255,0.12);
-            --text-primary: #f0f4fc;
-            --text-secondary: #8494b7;
-            --text-muted: #4a5a7a;
-            --blue: #3b82f6;
-            --green: #10b981;
-            --amber: #f59e0b;
-            --red: #ef4444;
-            --purple: #a855f7;
-            --gold: #fbbf24;
+            --bg: #f7f8fc;
+            --bg-warm: #fefefe;
+            --bg-card: #ffffff;
+            --bg-card-hover: #f0f3ff;
+            --border: rgba(0,0,0,0.06);
+            --border-hover: rgba(0,0,0,0.1);
+            --shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 20px rgba(0,0,0,0.03);
+            --shadow-hover: 0 2px 8px rgba(0,0,0,0.06), 0 8px 32px rgba(0,0,0,0.04);
+            --text-primary: #1a1f36;
+            --text-secondary: #5e6687;
+            --text-muted: #9ca3c2;
+            --blue: #4e7cf6;
+            --green: #22c088;
+            --amber: #f0a030;
+            --red: #e85d5d;
+            --purple: #9b6dff;
+            --gold: #e6a817;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Inter', 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: var(--bg-deep);
+            background: var(--bg);
             color: var(--text-primary);
             min-height: 100vh;
             overflow-x: hidden;
         }
-        /* 背景光晕 */
+        /* 顶部渐变装饰条 */
         body::before {
             content: '';
             position: fixed;
-            top: -30%;
-            left: -10%;
-            width: 60%;
-            height: 60%;
-            background: radial-gradient(ellipse, rgba(59,130,246,0.08) 0%, transparent 70%);
-            pointer-events: none;
-            z-index: 0;
+            top: 0; left: 0; right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--blue), var(--green), var(--amber), var(--red), var(--purple));
+            z-index: 100;
         }
-        body::after {
-            content: '';
-            position: fixed;
-            bottom: -20%;
-            right: -10%;
-            width: 50%;
-            height: 50%;
-            background: radial-gradient(ellipse, rgba(168,85,247,0.06) 0%, transparent 70%);
-            pointer-events: none;
-            z-index: 0;
-        }
-        .page { position: relative; z-index: 1; padding: 40px 24px 60px; }
+
+        .page { position: relative; z-index: 1; padding: 48px 24px 60px; }
         .container { max-width: 1100px; margin: 0 auto; }
 
         /* 头部 */
-        .header { text-align: center; margin-bottom: 40px; }
+        .header { text-align: center; margin-bottom: 44px; }
         .header-badge {
             display: inline-block;
-            padding: 6px 18px;
+            padding: 5px 16px;
             border-radius: 100px;
-            background: rgba(59,130,246,0.12);
-            border: 1px solid rgba(59,130,246,0.2);
+            background: linear-gradient(135deg, rgba(78,124,246,0.1), rgba(155,109,255,0.1));
+            border: 1px solid rgba(78,124,246,0.15);
             color: var(--blue);
-            font-size: 12px;
-            font-weight: 600;
+            font-size: 11px;
+            font-weight: 700;
             letter-spacing: 2px;
             text-transform: uppercase;
-            margin-bottom: 16px;
+            margin-bottom: 18px;
         }
         h1 {
-            font-size: 36px;
+            font-size: 38px;
             font-weight: 800;
             letter-spacing: -0.5px;
-            background: linear-gradient(135deg, #fff 0%, #93b4f5 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            color: var(--text-primary);
             margin-bottom: 10px;
             line-height: 1.2;
         }
@@ -88,38 +75,30 @@
             font-size: 14px;
             font-weight: 400;
             line-height: 1.8;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.3px;
         }
-        .subtitle span { opacity: 0.4; margin: 0 6px; }
+        .subtitle .sep { opacity: 0.25; margin: 0 6px; }
 
         /* 图表区 */
-        .chart-section { margin-bottom: 32px; }
+        .chart-section { margin-bottom: 36px; }
         .chart-wrapper {
             position: relative;
             background: var(--bg-card);
             border: 1px solid var(--border);
             border-radius: 20px;
             overflow: hidden;
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
+            box-shadow: var(--shadow);
         }
-        .chart-wrapper::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
-        }
-        .chart-inner { padding: 20px 8px 8px; }
+        .chart-inner { padding: 24px 12px 8px; }
         #chart { width: 100%; height: 520px; }
 
-        /* 移动端横滚提示 */
         .scroll-hint {
             display: none;
             text-align: center;
             padding: 8px;
             color: var(--text-muted);
             font-size: 11px;
+            font-weight: 500;
         }
 
         /* 图例 */
@@ -127,10 +106,10 @@
             display: flex;
             justify-content: center;
             gap: 20px;
-            padding: 16px 20px;
+            padding: 14px 20px;
             flex-wrap: wrap;
             border-top: 1px solid var(--border);
-            background: rgba(0,0,0,0.2);
+            background: rgba(247,248,252,0.6);
         }
         .legend-chip {
             display: flex;
@@ -148,34 +127,36 @@
         }
 
         /* 住宿时间轴 */
-        .timeline-section { margin-bottom: 32px; }
+        .timeline-section { margin-bottom: 36px; }
         .section-title {
-            font-size: 13px;
-            font-weight: 600;
+            font-size: 12px;
+            font-weight: 700;
             color: var(--text-muted);
             text-transform: uppercase;
-            letter-spacing: 2px;
+            letter-spacing: 2.5px;
             margin-bottom: 16px;
         }
         .timeline {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 12px;
+            gap: 14px;
         }
         .timeline-card {
             background: var(--bg-card);
             border: 1px solid var(--border);
             border-radius: 16px;
-            padding: 20px 16px;
+            padding: 22px 16px;
             text-align: center;
             position: relative;
             overflow: hidden;
             transition: all 0.3s ease;
+            box-shadow: var(--shadow);
         }
         .timeline-card:hover {
             background: var(--bg-card-hover);
             border-color: var(--border-hover);
-            transform: translateY(-2px);
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-hover);
         }
         .timeline-card::before {
             content: '';
@@ -183,22 +164,34 @@
             top: 0; left: 0; right: 0;
             height: 3px;
         }
-        .timeline-card:nth-child(1)::before { background: linear-gradient(90deg, var(--blue), rgba(59,130,246,0.2)); }
-        .timeline-card:nth-child(2)::before { background: linear-gradient(90deg, var(--green), rgba(16,185,129,0.2)); }
-        .timeline-card:nth-child(3)::before { background: linear-gradient(90deg, var(--amber), rgba(245,158,11,0.2)); }
-        .timeline-card:nth-child(4)::before { background: linear-gradient(90deg, var(--red), rgba(239,68,68,0.2)); }
-        .tc-icon { font-size: 24px; margin-bottom: 8px; }
-        .tc-date { font-size: 11px; color: var(--text-muted); font-weight: 600; letter-spacing: 1px; margin-bottom: 6px; }
-        .tc-place { font-size: 15px; font-weight: 700; color: var(--text-primary); margin-bottom: 4px; }
-        .tc-alt { font-size: 22px; font-weight: 800; font-family: 'Inter', sans-serif; }
-        .tc-alt span { font-size: 11px; font-weight: 500; color: var(--text-muted); }
+        .timeline-card:nth-child(1)::before { background: linear-gradient(90deg, var(--blue), rgba(78,124,246,0.15)); }
+        .timeline-card:nth-child(2)::before { background: linear-gradient(90deg, var(--green), rgba(34,192,136,0.15)); }
+        .timeline-card:nth-child(3)::before { background: linear-gradient(90deg, var(--amber), rgba(240,160,48,0.15)); }
+        .timeline-card:nth-child(4)::before { background: linear-gradient(90deg, var(--red), rgba(232,93,93,0.15)); }
+        .tc-night {
+            display: inline-block;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+        .timeline-card:nth-child(1) .tc-night { background: rgba(78,124,246,0.1); color: var(--blue); }
+        .timeline-card:nth-child(2) .tc-night { background: rgba(34,192,136,0.1); color: var(--green); }
+        .timeline-card:nth-child(3) .tc-night { background: rgba(240,160,48,0.1); color: var(--amber); }
+        .timeline-card:nth-child(4) .tc-night { background: rgba(232,93,93,0.1); color: var(--red); }
+        .tc-date { font-size: 11px; color: var(--text-muted); font-weight: 600; letter-spacing: 0.5px; margin-bottom: 6px; }
+        .tc-place { font-size: 16px; font-weight: 700; color: var(--text-primary); margin-bottom: 6px; }
+        .tc-alt { font-size: 24px; font-weight: 800; font-family: 'Inter', sans-serif; letter-spacing: -0.5px; }
+        .tc-alt span { font-size: 12px; font-weight: 500; color: var(--text-muted); }
 
         /* 统计 */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 12px;
-            margin-bottom: 32px;
+            gap: 14px;
+            margin-bottom: 36px;
         }
         .stat {
             background: var(--bg-card);
@@ -207,31 +200,39 @@
             padding: 20px 12px;
             text-align: center;
             transition: all 0.3s ease;
+            box-shadow: var(--shadow);
         }
-        .stat:hover { background: var(--bg-card-hover); border-color: var(--border-hover); }
-        .stat-icon { font-size: 20px; margin-bottom: 8px; opacity: 0.8; }
-        .stat-value { font-size: 26px; font-weight: 800; font-family: 'Inter', sans-serif; line-height: 1; margin-bottom: 4px; }
-        .stat-value small { font-size: 12px; font-weight: 500; opacity: 0.5; }
+        .stat:hover { background: var(--bg-card-hover); transform: translateY(-2px); box-shadow: var(--shadow-hover); }
+        .stat-tag {
+            display: inline-block;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            letter-spacing: 0.5px;
+        }
+        .stat-value { font-size: 28px; font-weight: 800; font-family: 'Inter', sans-serif; line-height: 1; margin-bottom: 6px; letter-spacing: -0.5px; }
+        .stat-value small { font-size: 13px; font-weight: 500; opacity: 0.4; }
         .stat-label { font-size: 11px; color: var(--text-muted); font-weight: 500; }
 
         /* 底部 */
         .footer {
             text-align: center;
-            padding-top: 20px;
+            padding-top: 24px;
             border-top: 1px solid var(--border);
         }
         .footer p { font-size: 11px; color: var(--text-muted); line-height: 1.8; }
-        .footer .brand { margin-top: 8px; font-size: 10px; color: rgba(255,255,255,0.12); letter-spacing: 3px; text-transform: uppercase; }
+        .footer .brand { margin-top: 8px; font-size: 10px; color: rgba(0,0,0,0.1); letter-spacing: 3px; text-transform: uppercase; font-weight: 700; }
 
         /* === 移动端 === */
         @media (max-width: 768px) {
-            .page { padding: 24px 14px 40px; }
+            .page { padding: 32px 14px 40px; }
             h1 { font-size: 26px; }
             .subtitle { font-size: 12px; }
             .header { margin-bottom: 28px; }
-            .header-badge { font-size: 10px; padding: 5px 14px; }
+            .header-badge { font-size: 10px; padding: 4px 12px; }
 
-            /* 图表横向滚动 */
             .chart-inner {
                 overflow-x: auto;
                 overflow-y: hidden;
@@ -240,35 +241,31 @@
             }
             .chart-inner::-webkit-scrollbar { height: 4px; }
             .chart-inner::-webkit-scrollbar-track { background: transparent; }
-            .chart-inner::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 2px; }
-            #chart {
-                width: 900px !important;  /* 足够宽，不挤 */
-                min-width: 900px;
-                height: 380px;
-            }
+            .chart-inner::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 2px; }
+            #chart { width: 900px !important; min-width: 900px; height: 380px; }
             .scroll-hint { display: block; }
 
-            .legend { gap: 12px; padding: 12px 16px; }
+            .legend { gap: 10px; padding: 12px 14px; }
             .legend-chip { font-size: 10px; gap: 4px; }
             .legend-chip i { width: 6px; height: 6px; }
 
             .timeline { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-            .timeline-card { padding: 16px 12px; border-radius: 12px; }
+            .timeline-card { padding: 16px 12px; border-radius: 14px; }
             .tc-place { font-size: 14px; }
-            .tc-alt { font-size: 18px; }
+            .tc-alt { font-size: 20px; }
 
             .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-            .stat { padding: 16px 10px; border-radius: 12px; }
+            .stat { padding: 16px 10px; border-radius: 14px; }
             .stat-value { font-size: 22px; }
             .stat-label { font-size: 10px; }
         }
 
         @media (max-width: 480px) {
-            .page { padding: 16px 10px 32px; }
+            .page { padding: 24px 10px 32px; }
             h1 { font-size: 22px; }
             #chart { width: 800px !important; min-width: 800px; height: 340px; }
             .timeline-card { padding: 14px 10px; }
-            .tc-alt { font-size: 16px; }
+            .tc-alt { font-size: 17px; }
             .stat-value { font-size: 20px; }
         }
     </style>
@@ -277,16 +274,14 @@
 <div class="page">
 <div class="container">
 
-    <!-- 头部 -->
     <div class="header">
-        <div class="header-badge">5天4晚 · 青甘小环线</div>
+        <div class="header-badge">5 Days 4 Nights / 青甘小环线</div>
         <h1>海拔变化全览</h1>
         <p class="subtitle">
-            2026.05.02 – 05.06<span>·</span>西宁<span>→</span>青海湖<span>→</span>祁连<span>→</span>张掖<span>→</span>门源<span>→</span>西宁
+            2026.05.02 – 05.06<span class="sep">/</span>西宁<span class="sep">—</span>青海湖<span class="sep">—</span>祁连<span class="sep">—</span>张掖<span class="sep">—</span>门源<span class="sep">—</span>西宁
         </p>
     </div>
 
-    <!-- 图表 -->
     <div class="chart-section">
         <div class="chart-wrapper">
             <div class="chart-inner">
@@ -294,75 +289,72 @@
             </div>
             <div class="scroll-hint">← 左右滑动查看完整图表 →</div>
             <div class="legend">
-                <div class="legend-chip"><i style="background:var(--blue)"></i>Day1 · 05.02</div>
-                <div class="legend-chip"><i style="background:var(--green)"></i>Day2 · 05.03</div>
-                <div class="legend-chip"><i style="background:var(--amber)"></i>Day3 · 05.04</div>
-                <div class="legend-chip"><i style="background:var(--red)"></i>Day4 · 05.05</div>
-                <div class="legend-chip"><i style="background:var(--purple)"></i>Day5 · 05.06</div>
-                <div class="legend-chip"><i style="background:var(--gold)"></i>🏨 住宿</div>
+                <div class="legend-chip"><i style="background:var(--blue)"></i>Day 1 / 05.02</div>
+                <div class="legend-chip"><i style="background:var(--green)"></i>Day 2 / 05.03</div>
+                <div class="legend-chip"><i style="background:var(--amber)"></i>Day 3 / 05.04</div>
+                <div class="legend-chip"><i style="background:var(--red)"></i>Day 4 / 05.05</div>
+                <div class="legend-chip"><i style="background:var(--purple)"></i>Day 5 / 05.06</div>
+                <div class="legend-chip"><i style="background:var(--gold);box-shadow:0 0 0 2px rgba(230,168,23,0.25)"></i>住宿点</div>
             </div>
         </div>
     </div>
 
-    <!-- 住宿时间轴 -->
     <div class="timeline-section">
-        <div class="section-title">🏨 每晚住宿</div>
+        <div class="section-title">每晚住宿</div>
         <div class="timeline">
             <div class="timeline-card">
-                <div class="tc-icon">🌊</div>
-                <div class="tc-date">05.02 周六</div>
+                <div class="tc-night">Night 1</div>
+                <div class="tc-date">05.02 Sat</div>
                 <div class="tc-place">东格尔观景台</div>
                 <div class="tc-alt" style="color:var(--blue)">3,200<span> m</span></div>
             </div>
             <div class="timeline-card">
-                <div class="tc-icon">🏔️</div>
-                <div class="tc-date">05.03 周日</div>
+                <div class="tc-night">Night 2</div>
+                <div class="tc-date">05.03 Sun</div>
                 <div class="tc-place">祁连县城</div>
                 <div class="tc-alt" style="color:var(--green)">2,787<span> m</span></div>
             </div>
             <div class="timeline-card">
-                <div class="tc-icon">🏜️</div>
-                <div class="tc-date">05.04 周一</div>
+                <div class="tc-night">Night 3</div>
+                <div class="tc-date">05.04 Mon</div>
                 <div class="tc-place">张掖市区</div>
                 <div class="tc-alt" style="color:var(--amber)">1,400<span> m</span></div>
             </div>
             <div class="timeline-card">
-                <div class="tc-icon">🌾</div>
-                <div class="tc-date">05.05 周二</div>
+                <div class="tc-night">Night 4</div>
+                <div class="tc-date">05.05 Tue</div>
                 <div class="tc-place">门源县城</div>
                 <div class="tc-alt" style="color:var(--red)">2,851<span> m</span></div>
             </div>
         </div>
     </div>
 
-    <!-- 统计 -->
     <div class="stats-grid">
         <div class="stat">
-            <div class="stat-icon">⬆️</div>
+            <div class="stat-tag" style="background:rgba(232,93,93,0.1);color:var(--red)">MAX</div>
             <div class="stat-value" style="color:var(--red)">4,300<small> m</small></div>
-            <div class="stat-label">全程最高 · 9号公路垭口</div>
+            <div class="stat-label">全程最高 / 9号公路垭口</div>
         </div>
         <div class="stat">
-            <div class="stat-icon">⬇️</div>
+            <div class="stat-tag" style="background:rgba(78,124,246,0.1);color:var(--blue)">MIN</div>
             <div class="stat-value" style="color:var(--blue)">1,400<small> m</small></div>
-            <div class="stat-label">全程最低 · 张掖市区</div>
+            <div class="stat-label">全程最低 / 张掖市区</div>
         </div>
         <div class="stat">
-            <div class="stat-icon">⚠️</div>
+            <div class="stat-tag" style="background:rgba(240,160,48,0.1);color:var(--amber)">ALERT</div>
             <div class="stat-value" style="color:var(--amber)">5<small> 天</small></div>
             <div class="stat-label">每天经过 3000m+</div>
         </div>
         <div class="stat">
-            <div class="stat-icon">📍</div>
+            <div class="stat-tag" style="background:rgba(155,109,255,0.1);color:var(--purple)">TOTAL</div>
             <div class="stat-value" style="color:var(--purple)">23<small> 处</small></div>
             <div class="stat-label">途经地点总数</div>
         </div>
     </div>
 
-    <!-- 底部 -->
     <div class="footer">
         <p>* 海拔数据综合自百度百科、携程等公开资料，部分为观景台/通行点海拔，仅供参考</p>
-        <div class="brand">Qinggan Loop · Elevation Profile</div>
+        <div class="brand">Qinggan Loop / Elevation Profile</div>
     </div>
 
 </div>
@@ -376,9 +368,9 @@ var data = [
     { name: '西宁机场',      fullName: '西宁曹家堡国际机场',        alt: 2188, day: 1 },
     { name: '贾小巷子',      fullName: '贾小巷子（西宁市区）',      alt: 2261, day: 1 },
     { name: '日月山',        fullName: '日月山景区',                alt: 3520, day: 1 },
-    { name: '东格尔观景台',  fullName: '青海湖·东格尔观景台',       alt: 3200, day: 1, stay: true },
+    { name: '东格尔观景台',  fullName: '青海湖 · 东格尔观景台',     alt: 3200, day: 1, stay: true },
 
-    { name: '尕日拉寺',      fullName: '青海湖·尕日拉寺',           alt: 3210, day: 2 },
+    { name: '尕日拉寺',      fullName: '青海湖 · 尕日拉寺',         alt: 3210, day: 2 },
     { name: '青海湖断崖',    fullName: '青海湖断崖',                alt: 3196, day: 2 },
     { name: '大冬树山垭口',  fullName: '大冬树山垭口',              alt: 4120, day: 2 },
     { name: '冰沟林海',      fullName: '冰沟林海',                  alt: 3123, day: 2 },
@@ -397,7 +389,7 @@ var data = [
     { name: '门源县城',      fullName: '门源回族自治县',            alt: 2851, day: 4, stay: true },
 
     { name: '俄博岭垭口',    fullName: '俄博岭垭口',               alt: 3685, day: 5 },
-    { name: '经幡观光点',    fullName: '祁连山国家公园·经幡观光点', alt: 3500, day: 5 },
+    { name: '经幡观光点',    fullName: '祁连山国家公园 · 经幡观光点', alt: 3500, day: 5 },
     { name: '岗什卡雪峰',    fullName: '岗什卡雪峰观景区',          alt: 3800, day: 5 },
     { name: '西宁机场',      fullName: '西宁曹家堡国际机场',        alt: 2188, day: 5 },
 ];
@@ -405,44 +397,36 @@ var data = [
 var names = data.map(function(d) { return d.name; });
 var alts = data.map(function(d) { return d.alt; });
 
-var dayColors = { 1: '#3b82f6', 2: '#10b981', 3: '#f59e0b', 4: '#ef4444', 5: '#a855f7' };
-var dayBg = { 1: 'rgba(59,130,246,0.08)', 2: 'rgba(16,185,129,0.08)', 3: 'rgba(245,158,11,0.08)', 4: 'rgba(239,68,68,0.08)', 5: 'rgba(168,85,247,0.08)' };
+var dayColors = { 1: '#4e7cf6', 2: '#22c088', 3: '#f0a030', 4: '#e85d5d', 5: '#9b6dff' };
+var dayBg = { 1: 'rgba(78,124,246,0.04)', 2: 'rgba(34,192,136,0.04)', 3: 'rgba(240,160,48,0.04)', 4: 'rgba(232,93,93,0.04)', 5: 'rgba(155,109,255,0.04)' };
 
-// 分段颜色
 var pieces = [], prevDay = 0;
 data.forEach(function(d, i) {
     if (d.day !== prevDay) { pieces.push({ gt: i > 0 ? i - 1 : 0, lte: i, color: dayColors[d.day] }); prevDay = d.day; }
     else if (pieces.length) pieces[pieces.length - 1].lte = i;
 });
 
-// 住宿 markPoint
+// 住宿标记：用「住」字
 var stayMarks = [];
 data.forEach(function(d, i) {
     if (d.stay) {
         stayMarks.push({
             coord: [i, d.alt],
             symbol: 'pin',
-            symbolSize: 40,
-            itemStyle: { color: '#fbbf24', borderColor: '#fff', borderWidth: 2, shadowColor: 'rgba(251,191,36,0.6)', shadowBlur: 12 },
-            label: { show: true, formatter: '🏨', fontSize: 14, offset: [0, -2] }
+            symbolSize: 38,
+            itemStyle: { color: '#e6a817', borderColor: '#fff', borderWidth: 2, shadowColor: 'rgba(230,168,23,0.4)', shadowBlur: 10 },
+            label: { show: true, formatter: '住', fontSize: 12, fontWeight: 700, color: '#fff', offset: [0, -3] }
         });
     }
 });
 
-// 天分隔 markArea
-var dayAreas = [];
-var dayStart = {};
-data.forEach(function(d, i) {
-    if (!dayStart[d.day]) dayStart[d.day] = i;
-});
+// 天背景区域
+var dayAreas = [], dayStart = {};
+data.forEach(function(d, i) { if (!dayStart[d.day]) dayStart[d.day] = i; });
 Object.keys(dayStart).forEach(function(day) {
-    var start = dayStart[day];
-    var end = start;
+    var start = dayStart[day], end = start;
     data.forEach(function(d, i) { if (d.day == day) end = i; });
-    dayAreas.push([
-        { xAxis: data[start].name, itemStyle: { color: dayBg[day] } },
-        { xAxis: data[end].name }
-    ]);
+    dayAreas.push([ { xAxis: data[start].name, itemStyle: { color: dayBg[day] } }, { xAxis: data[end].name } ]);
 });
 
 var option = {
@@ -451,19 +435,19 @@ var option = {
     animationEasing: 'cubicInOut',
     tooltip: {
         trigger: 'axis',
-        backgroundColor: 'rgba(6, 11, 24, 0.96)',
-        borderColor: 'rgba(255,255,255,0.08)',
+        backgroundColor: '#fff',
+        borderColor: 'rgba(0,0,0,0.06)',
         borderRadius: 12,
         padding: [14, 18],
-        textStyle: { color: '#f0f4fc', fontSize: 13, fontFamily: 'Inter, Noto Sans SC, sans-serif' },
-        extraCssText: 'backdrop-filter:blur(12px);box-shadow:0 8px 32px rgba(0,0,0,0.4);',
+        textStyle: { color: '#1a1f36', fontSize: 13, fontFamily: 'Inter, Noto Sans SC, sans-serif' },
+        extraCssText: 'box-shadow:0 8px 40px rgba(0,0,0,0.08);',
         formatter: function(params) {
             var p = params[0], d = data[p.dataIndex];
-            var labels = ['', 'Day 1 · 05.02 周六', 'Day 2 · 05.03 周日', 'Day 3 · 05.04 周一', 'Day 4 · 05.05 周二', 'Day 5 · 05.06 周三'];
-            var stay = d.stay ? '<div style="margin-top:6px;padding:4px 10px;background:rgba(251,191,36,0.15);border-radius:6px;color:#fbbf24;font-size:12px;display:inline-block">🏨 当晚住宿点</div>' : '';
-            return '<div style="font-weight:600;font-size:11px;color:' + dayColors[d.day] + ';letter-spacing:1px;margin-bottom:8px">' + labels[d.day] + '</div>' +
-                '<div style="font-size:16px;font-weight:700;margin-bottom:6px">' + d.fullName + '</div>' +
-                '<div style="font-size:28px;font-weight:800;font-family:Inter,sans-serif;letter-spacing:-1px">' + d.alt.toLocaleString() + '<span style="font-size:14px;font-weight:400;opacity:0.5;margin-left:4px">m</span></div>' + stay;
+            var labels = ['', 'Day 1 / 05.02 Sat', 'Day 2 / 05.03 Sun', 'Day 3 / 05.04 Mon', 'Day 4 / 05.05 Tue', 'Day 5 / 05.06 Wed'];
+            var stay = d.stay ? '<div style="margin-top:8px;padding:4px 10px;background:rgba(230,168,23,0.1);border-radius:6px;color:#b8860b;font-size:11px;font-weight:600;display:inline-block">STAY / 当晚住宿</div>' : '';
+            return '<div style="font-weight:700;font-size:11px;color:' + dayColors[d.day] + ';letter-spacing:1px;margin-bottom:8px">' + labels[d.day] + '</div>' +
+                '<div style="font-size:16px;font-weight:700;color:#1a1f36;margin-bottom:6px">' + d.fullName + '</div>' +
+                '<div style="font-size:30px;font-weight:800;font-family:Inter,sans-serif;color:#1a1f36;letter-spacing:-1px">' + d.alt.toLocaleString() + '<span style="font-size:14px;font-weight:400;color:#9ca3c2;margin-left:4px">m</span></div>' + stay;
         }
     },
     grid: { left: 60, right: 30, top: 40, bottom: 100 },
@@ -479,17 +463,17 @@ var option = {
             interval: 0,
             margin: 12
         },
-        axisLine: { lineStyle: { color: 'rgba(255,255,255,0.06)' } },
+        axisLine: { lineStyle: { color: 'rgba(0,0,0,0.06)' } },
         axisTick: { show: false },
     },
     yAxis: {
         type: 'value',
-        name: '海拔 m',
-        nameTextStyle: { color: '#4a5a7a', fontSize: 11, fontWeight: 600, padding: [0, 0, 8, 0] },
+        name: 'Elevation (m)',
+        nameTextStyle: { color: '#9ca3c2', fontSize: 11, fontWeight: 600, padding: [0, 0, 8, 0] },
         min: 1000, max: 5000, interval: 500,
-        axisLabel: { color: '#4a5a7a', fontSize: 10, fontFamily: 'Inter, sans-serif', formatter: function(v) { return v >= 1000 ? (v/1000).toFixed(1) + 'k' : v; } },
+        axisLabel: { color: '#9ca3c2', fontSize: 10, fontFamily: 'Inter, sans-serif', formatter: function(v) { return v >= 1000 ? (v/1000).toFixed(1) + 'k' : v; } },
         axisLine: { show: false },
-        splitLine: { lineStyle: { color: 'rgba(255,255,255,0.04)', type: 'dashed' } }
+        splitLine: { lineStyle: { color: 'rgba(0,0,0,0.04)', type: 'dashed' } }
     },
     visualMap: { show: false, dimension: 0, pieces: pieces },
     series: [{
@@ -500,14 +484,14 @@ var option = {
         symbolSize: function(v) { return v >= 4000 ? 11 : v >= 3500 ? 9 : 7; },
         itemStyle: {
             color: function(p) { return dayColors[data[p.dataIndex].day]; },
-            borderColor: 'rgba(6,11,24,0.8)',
+            borderColor: '#fff',
             borderWidth: 2
         },
-        lineStyle: { width: 3, shadowColor: 'rgba(59,130,246,0.2)', shadowBlur: 12, shadowOffsetY: 4 },
+        lineStyle: { width: 3, shadowColor: 'rgba(78,124,246,0.12)', shadowBlur: 12, shadowOffsetY: 4 },
         areaStyle: {
             color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                { offset: 0, color: 'rgba(59,130,246,0.15)' },
-                { offset: 0.4, color: 'rgba(16,185,129,0.06)' },
+                { offset: 0, color: 'rgba(78,124,246,0.12)' },
+                { offset: 0.4, color: 'rgba(34,192,136,0.04)' },
                 { offset: 1, color: 'transparent' }
             ])
         },
@@ -517,7 +501,7 @@ var option = {
             fontSize: 9,
             fontFamily: 'Inter, sans-serif',
             fontWeight: 600,
-            color: 'rgba(255,255,255,0.35)',
+            color: 'rgba(0,0,0,0.2)',
             formatter: function(p) {
                 var v = p.value;
                 if (v >= 4000 || v <= 1500) return v.toLocaleString();
@@ -527,18 +511,18 @@ var option = {
         markLine: {
             silent: true,
             symbol: 'none',
-            lineStyle: { color: 'rgba(239,68,68,0.25)', type: [6, 4], width: 1 },
+            lineStyle: { color: 'rgba(232,93,93,0.2)', type: [6, 4], width: 1 },
             data: [{
                 yAxis: 3000,
-                label: { formatter: '⚠ 高原反应警戒线 3,000m', position: 'insideEndTop', color: 'rgba(239,68,68,0.6)', fontSize: 10, fontWeight: 600 }
+                label: { formatter: 'Altitude Warning Line   3,000m', position: 'insideEndTop', color: 'rgba(232,93,93,0.5)', fontSize: 10, fontWeight: 600 }
             }]
         },
         markArea: { silent: true, data: dayAreas },
         markPoint: {
             animation: true,
             data: [
-                { type: 'max', symbolSize: 48, label: { formatter: '▲ {c}m', fontSize: 11, fontWeight: 700 }, itemStyle: { color: '#ef4444', shadowColor: 'rgba(239,68,68,0.4)', shadowBlur: 12 } },
-                { type: 'min', symbolSize: 48, symbolOffset: [0, 8], label: { formatter: '▼ {c}m', fontSize: 11, fontWeight: 700 }, itemStyle: { color: '#3b82f6', shadowColor: 'rgba(59,130,246,0.4)', shadowBlur: 12 } }
+                { type: 'max', symbolSize: 46, label: { formatter: 'MAX {c}', fontSize: 10, fontWeight: 700 }, itemStyle: { color: '#e85d5d', shadowColor: 'rgba(232,93,93,0.3)', shadowBlur: 10 } },
+                { type: 'min', symbolSize: 46, symbolOffset: [0, 8], label: { formatter: 'MIN {c}', fontSize: 10, fontWeight: 700 }, itemStyle: { color: '#4e7cf6', shadowColor: 'rgba(78,124,246,0.3)', shadowBlur: 10 } }
             ].concat(stayMarks)
         }
     }]
