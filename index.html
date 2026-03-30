@@ -1,363 +1,345 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>青甘小环线 · 海拔变化</title>
-    <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
-    <script src="https://map.qq.com/api/gljs?v=3&key=H4VBZ-YGC34-PQKU2-FRG33-JNNQH-ZKB5R&libraries=service"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Inter', 'Noto Sans SC', -apple-system, sans-serif;
-            background: #fafbfe;
-            color: #1a1f36;
-            -webkit-font-smoothing: antialiased;
-        }
-        .top-line {
-            height: 3px;
-            background: linear-gradient(90deg, #4e7cf6, #22c088, #f0a030, #e85d5d, #9b6dff);
-        }
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+<title>青甘小环线 · 海拔变化</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+<script src="https://map.qq.com/api/gljs?v=3&key=H4VBZ-YGC34-PQKU2-FRG33-JNNQH-ZKB5R&libraries=service"></script>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Outfit:wght@300;400;500;600;700;800&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+    --ink: #1c1917;
+    --ink2: #44403c;
+    --ink3: #78716c;
+    --ink4: #a8a29e;
+    --paper: #faf9f6;
+    --paper2: #f5f3ef;
+    --line: rgba(28,25,23,0.07);
+    --d1: #5b7fc7; --d2: #3a9e7c; --d3: #d4873a; --d4: #c75b5b; --d5: #8b6bc7;
+    --gold: #b8860b;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+    font-family:'Outfit','Noto Sans SC',sans-serif;
+    background:var(--paper);
+    color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+}
+/* 微妙纸张纹理 */
+body::after{
+    content:'';position:fixed;inset:0;
+    background:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
+    pointer-events:none;z-index:9999;
+}
 
-        /* 头部 */
-        .hero {
-            max-width: 960px;
-            margin: 0 auto;
-            padding: 56px 24px 0;
-            text-align: center;
-        }
-        .hero-label {
-            font-size: 11px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase;
-            color: #9ca3c2; margin-bottom: 12px;
-        }
-        .hero h1 {
-            font-size: 42px; font-weight: 800; letter-spacing: -1px; line-height: 1.15;
-            margin-bottom: 12px;
-        }
-        .hero-sub {
-            font-size: 14px; color: #8494b7; font-weight: 400; letter-spacing: 0.3px; line-height: 1.8;
-        }
-        .hero-sub b { color: #5e6687; font-weight: 600; }
+/* 入场动画 */
+@keyframes rise{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+.anim{animation:rise .7s cubic-bezier(.22,1,.36,1) both}
 
-        /* 关键数字条 */
-        .kpi {
-            max-width: 960px; margin: 0 auto;
-            display: flex; justify-content: center; gap: 48px;
-            padding: 36px 24px 40px;
-            border-bottom: 1px solid rgba(0,0,0,0.05);
-        }
-        .kpi-item { text-align: center; }
-        .kpi-val { font-size: 28px; font-weight: 800; letter-spacing: -0.5px; line-height: 1; }
-        .kpi-val small { font-size: 12px; font-weight: 500; opacity: 0.4; margin-left: 2px; }
-        .kpi-lbl { font-size: 10px; font-weight: 600; color: #9ca3c2; letter-spacing: 1px; text-transform: uppercase; margin-top: 6px; }
+/* ---- 顶部色带 ---- */
+.ribbon{height:4px;background:linear-gradient(90deg,var(--d1),var(--d2),var(--d3),var(--d4),var(--d5))}
 
-        /* 图表（主体） */
-        .chart-zone {
-            max-width: 1100px; margin: 0 auto; padding: 0 16px;
-        }
-        .chart-scroll { padding: 40px 0 0; }
-        #chart { width: 100%; height: 600px; }
+/* ---- Header ---- */
+.hdr{max-width:800px;margin:0 auto;padding:64px 28px 0;text-align:center}
+.hdr-tag{
+    display:inline-block;font-family:'Outfit';font-size:11px;font-weight:600;
+    letter-spacing:3px;text-transform:uppercase;color:var(--ink3);
+    border:1px solid var(--line);border-radius:100px;padding:6px 20px;
+    margin-bottom:20px;
+}
+.hdr h1{
+    font-family:'DM Serif Display',serif;font-size:52px;font-weight:400;
+    letter-spacing:-1px;line-height:1.1;margin-bottom:14px;color:var(--ink);
+}
+.hdr p{font-size:15px;color:var(--ink3);font-weight:400;line-height:1.8;letter-spacing:0.2px}
+.hdr p .dot{opacity:.3;margin:0 8px}
 
-        /* 每日摘要条 — 图表下方，紧贴 */
-        .day-strip {
-            max-width: 960px; margin: 0 auto;
-            display: flex; border-top: 1px solid rgba(0,0,0,0.05);
-        }
-        .day-cell {
-            flex: 1; padding: 20px 12px; text-align: center;
-            border-right: 1px solid rgba(0,0,0,0.04);
-            transition: background 0.2s;
-        }
-        .day-cell:last-child { border-right: none; }
-        .day-cell:hover { background: rgba(0,0,0,0.015); }
-        .day-cell .d-label { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 8px; }
-        .day-cell .d-flow { font-size: 12px; font-weight: 600; color: #5e6687; margin-bottom: 6px; line-height: 1.6; }
-        .day-cell .d-flow .pk { color: #e85d5d; }
-        .day-cell .d-flow .lo { color: #4e7cf6; }
-        .day-cell .d-flow .ar { color: #c5cbe0; margin: 0 2px; }
-        .day-cell .d-stay { font-size: 10px; color: #9ca3c2; font-weight: 500; margin-top: 4px; }
-        .day-cell .d-stay b { color: #b8860b; font-weight: 700; }
-        .day-cell .d-delta { display: inline-block; font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 4px; margin: 2px 1px 0; }
-        .d-delta.up { background: rgba(232,93,93,0.07); color: #e85d5d; }
-        .d-delta.dn { background: rgba(78,124,246,0.07); color: #4e7cf6; }
-        .d-delta.ok { background: rgba(34,192,136,0.07); color: #22c088; }
+/* ---- KPI ---- */
+.kpi{
+    max-width:800px;margin:0 auto;
+    display:flex;justify-content:space-between;
+    padding:40px 28px;
+    border-bottom:1px solid var(--line);
+}
+.kpi-i{text-align:center;flex:1}
+.kpi-n{font-family:'Outfit';font-size:32px;font-weight:800;letter-spacing:-1px;line-height:1}
+.kpi-n small{font-size:14px;font-weight:400;color:var(--ink4);margin-left:2px}
+.kpi-l{font-size:11px;font-weight:500;color:var(--ink4);margin-top:6px;letter-spacing:0.5px}
 
-        /* 地图 */
-        .map-zone {
-            max-width: 960px; margin: 48px auto 0; padding: 0 24px;
-        }
-        .map-label {
-            font-size: 10px; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase;
-            color: #9ca3c2; margin-bottom: 14px;
-        }
-        .map-frame {
-            border-radius: 16px; overflow: hidden;
-            border: 1px solid rgba(0,0,0,0.06);
-        }
-        #mapContainer { width: 100%; height: 400px; }
+/* ---- 图表 ---- */
+.chart-sec{max-width:1060px;margin:0 auto;padding:48px 20px 0}
+.chart-scroll{position:relative}
+#chart{width:100%;height:560px}
+.scroll-tip{display:none;text-align:center;padding:10px 0 0;font-size:11px;color:var(--ink4);font-weight:500;letter-spacing:1px}
 
-        /* 底部 */
-        .foot {
-            max-width: 960px; margin: 0 auto;
-            padding: 32px 24px 48px;
-            text-align: center;
-            font-size: 11px; color: #c5cbe0; line-height: 1.8;
-        }
-        .foot .brand {
-            margin-top: 6px; font-size: 9px; letter-spacing: 4px; text-transform: uppercase;
-            color: rgba(0,0,0,0.08); font-weight: 700;
-        }
+/* ---- Day strip ---- */
+.days{
+    max-width:800px;margin:0 auto;
+    display:grid;grid-template-columns:repeat(5,1fr);
+    border-top:1px solid var(--line);
+}
+.dy{
+    padding:24px 14px;text-align:left;
+    border-right:1px solid var(--line);
+    transition:background .2s;
+}
+.dy:last-child{border-right:none}
+.dy:hover{background:var(--paper2)}
+.dy-h{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px}
+.dy-route{font-size:12px;color:var(--ink2);line-height:1.9;font-weight:500}
+.dy-route .num{font-family:'Outfit';font-weight:700}
+.dy-route .hi{color:var(--d4)}
+.dy-route .lo{color:var(--d1)}
+.dy-route .arr{color:var(--ink4);margin:0 3px;font-size:10px}
+.dy-tags{margin-top:8px;display:flex;flex-wrap:wrap;gap:4px}
+.dy-tag{
+    font-size:9px;font-weight:600;padding:3px 7px;border-radius:4px;
+    letter-spacing:0.3px;
+}
+.dy-tag.r{background:rgba(199,91,91,.08);color:var(--d4)}
+.dy-tag.b{background:rgba(91,127,199,.08);color:var(--d1)}
+.dy-tag.g{background:rgba(58,158,124,.08);color:var(--d2)}
+.dy-stay{font-size:10px;color:var(--ink4);margin-top:8px;font-weight:500}
+.dy-stay strong{color:var(--gold);font-weight:700}
 
-        /* 移动端 */
-        @media (max-width: 768px) {
-            .hero { padding: 40px 16px 0; }
-            .hero h1 { font-size: 28px; }
-            .hero-sub { font-size: 12px; }
-            .kpi { gap: 24px; padding: 28px 16px 28px; flex-wrap: wrap; }
-            .kpi-item { min-width: 60px; }
-            .kpi-val { font-size: 22px; }
-            .chart-scroll {
-                overflow-x: auto; -webkit-overflow-scrolling: touch; padding: 28px 0 0;
-            }
-            .chart-scroll::-webkit-scrollbar { height: 3px; }
-            .chart-scroll::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.08); border-radius: 2px; }
-            #chart { width: 900px; min-width: 900px; height: 420px; }
-            .day-strip { flex-wrap: wrap; }
-            .day-cell { flex: none; width: 50%; border-bottom: 1px solid rgba(0,0,0,0.04); }
-            .day-cell:nth-child(odd) { border-right: 1px solid rgba(0,0,0,0.04); }
-            .day-cell:nth-child(even) { border-right: none; }
-            .day-cell:nth-child(5) { width: 100%; border-right: none; }
-            #mapContainer { height: 300px; }
-        }
-        @media (max-width: 480px) {
-            .hero h1 { font-size: 24px; }
-            #chart { width: 800px; min-width: 800px; height: 380px; }
-            .kpi-val { font-size: 20px; }
-            .kpi { gap: 16px; }
-            #mapContainer { height: 260px; }
-        }
-    </style>
+/* ---- 地图 ---- */
+.map-sec{max-width:800px;margin:48px auto 0;padding:0 28px}
+.map-lbl{font-size:10px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--ink4);margin-bottom:12px}
+.map-fr{border-radius:20px;overflow:hidden;border:1px solid var(--line)}
+#mapBox{width:100%;height:400px}
+
+/* ---- Footer ---- */
+.ft{max-width:800px;margin:0 auto;padding:36px 28px 56px;text-align:center;border-top:1px solid var(--line);margin-top:48px}
+.ft p{font-size:11px;color:var(--ink4);line-height:1.8}
+.ft .sig{margin-top:10px;font-family:'DM Serif Display',serif;font-style:italic;font-size:13px;color:rgba(28,25,23,.12)}
+
+/* ---- Mobile ---- */
+@media(max-width:768px){
+    .hdr{padding:44px 20px 0}
+    .hdr h1{font-size:34px}
+    .hdr p{font-size:13px}
+    .kpi{gap:8px;padding:28px 20px;flex-wrap:wrap;justify-content:center}
+    .kpi-i{min-width:70px}
+    .kpi-n{font-size:24px}
+    .chart-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+    .chart-scroll::-webkit-scrollbar{height:3px}
+    .chart-scroll::-webkit-scrollbar-thumb{background:rgba(0,0,0,.08);border-radius:2px}
+    #chart{width:920px;min-width:920px;height:400px}
+    .scroll-tip{display:block}
+    .days{grid-template-columns:repeat(2,1fr)}
+    .dy:nth-child(odd){border-right:1px solid var(--line)}
+    .dy:nth-child(even){border-right:none}
+    .dy:nth-child(5){grid-column:span 2;border-right:none}
+    #mapBox{height:300px}
+}
+@media(max-width:480px){
+    .hdr h1{font-size:28px}
+    #chart{width:800px;min-width:800px;height:360px}
+    .kpi-n{font-size:21px}
+    .days{grid-template-columns:1fr}
+    .dy{border-right:none!important;border-bottom:1px solid var(--line)}
+    .dy:last-child{border-bottom:none}
+    .dy:nth-child(5){grid-column:span 1}
+    #mapBox{height:260px}
+}
+</style>
 </head>
 <body>
-<div class="top-line"></div>
+<div class="ribbon"></div>
 
-<div class="hero">
-    <div class="hero-label">5 Days 4 Nights / 青甘小环线</div>
+<div class="hdr anim" style="animation-delay:.1s">
+    <div class="hdr-tag">青甘小环线 · 5天4晚</div>
     <h1>海拔变化全览</h1>
-    <p class="hero-sub">
-        2026.05.02 – 05.06 / 西宁 — 青海湖 — 祁连 — 张掖 — 门源 — 西宁
-    </p>
+    <p>2026.05.02 – 05.06<span class="dot">/</span>西宁<span class="dot">—</span>青海湖<span class="dot">—</span>祁连<span class="dot">—</span>张掖<span class="dot">—</span>门源<span class="dot">—</span>西宁</p>
 </div>
 
-<div class="kpi">
-    <div class="kpi-item">
-        <div class="kpi-val" style="color:#e85d5d">4,300<small>m</small></div>
-        <div class="kpi-lbl">全程最高点</div>
+<div class="kpi anim" style="animation-delay:.2s">
+    <div class="kpi-i">
+        <div class="kpi-n" style="color:var(--d4)">4,300<small>m</small></div>
+        <div class="kpi-l">全程最高点</div>
     </div>
-    <div class="kpi-item">
-        <div class="kpi-val" style="color:#4e7cf6">1,400<small>m</small></div>
-        <div class="kpi-lbl">全程最低点</div>
+    <div class="kpi-i">
+        <div class="kpi-n" style="color:var(--d1)">1,400<small>m</small></div>
+        <div class="kpi-l">全程最低点</div>
     </div>
-    <div class="kpi-item">
-        <div class="kpi-val" style="color:#f0a030">2,900<small>m</small></div>
-        <div class="kpi-lbl">单日最大落差</div>
+    <div class="kpi-i">
+        <div class="kpi-n" style="color:var(--d3)">2,900<small>m</small></div>
+        <div class="kpi-l">单日最大落差</div>
     </div>
-    <div class="kpi-item">
-        <div class="kpi-val" style="color:#9b6dff">23<small>处</small></div>
-        <div class="kpi-lbl">途经地点</div>
-    </div>
-</div>
-<div class="chart-zone">
-    <div class="chart-scroll">
-        <div id="chart"></div>
+    <div class="kpi-i">
+        <div class="kpi-n" style="color:var(--d5)">23<small>处</small></div>
+        <div class="kpi-l">途经地点</div>
     </div>
 </div>
 
-<div class="day-strip">
-    <div class="day-cell">
-        <div class="d-label" style="color:#4e7cf6">Day 1 · 05.02</div>
-        <div class="d-flow">起 <span class="lo">2188</span> <span class="ar">→</span> 峰 <span class="pk">3520</span> <span class="ar">→</span> 宿 3200</div>
-        <div><span class="d-delta up">急升至日月山 +1332m</span></div>
-        <div class="d-stay"><b>住</b> 东格尔观景台</div>
-    </div>
-    <div class="day-cell">
-        <div class="d-label" style="color:#22c088">Day 2 · 05.03</div>
-        <div class="d-flow">起 3200 <span class="ar">→</span> 峰 <span class="pk">4120</span> <span class="ar">→</span> 宿 2787</div>
-        <div><span class="d-delta up">+920</span><span class="d-delta dn">翻越垭口后降 -1333m</span></div>
-        <div class="d-stay"><b>住</b> 祁连县城</div>
-    </div>
-    <div class="day-cell">
-        <div class="d-label" style="color:#f0a030">Day 3 · 05.04</div>
-        <div class="d-flow">起 2787 <span class="ar">→</span> 峰 <span class="pk">4300</span> <span class="ar">→</span> 宿 <span class="lo">1400</span></div>
-        <div><span class="d-delta up">+1513</span><span class="d-delta dn">全程最大落差 -2900m</span></div>
-        <div class="d-stay"><b>住</b> 张掖市区</div>
-    </div>
-    <div class="day-cell">
-        <div class="d-label" style="color:#e85d5d">Day 4 · 05.05</div>
-        <div class="d-flow">起 <span class="lo">1400</span> <span class="ar">→</span> 峰 2700 <span class="ar">→</span> 宿 2851</div>
-        <div><span class="d-delta up">回升 +1451m</span><span class="d-delta ok">相对平缓</span></div>
-        <div class="d-stay"><b>住</b> 门源县城</div>
-    </div>
-    <div class="day-cell">
-        <div class="d-label" style="color:#9b6dff">Day 5 · 05.06</div>
-        <div class="d-flow">起 2851 <span class="ar">→</span> 峰 <span class="pk">3800</span> <span class="ar">→</span> 终 2188</div>
-        <div><span class="d-delta up">+949</span><span class="d-delta dn">返回西宁 -1612m</span></div>
-        <div class="d-stay">返程 西宁机场</div>
-    </div>
+<div class="chart-sec anim" style="animation-delay:.35s">
+    <div class="chart-scroll"><div id="chart"></div></div>
+    <div class="scroll-tip">← 左右滑动查看完整图表 →</div>
 </div>
-<div class="map-zone">
-    <div class="map-label">自驾路线总览</div>
-    <div class="map-frame">
-        <div id="mapContainer"></div>
+
+<div class="days anim" style="animation-delay:.5s">
+    <div class="dy">
+        <div class="dy-h" style="color:var(--d1)">Day 1 · 05.02</div>
+        <div class="dy-route">
+            起 <span class="num lo">2,188</span><span class="arr">→</span>
+            峰 <span class="num hi">3,520</span><span class="arr">→</span>
+            宿 <span class="num">3,200</span>
+        </div>
+        <div class="dy-tags"><span class="dy-tag r">急升至日月山 +1,332m</span></div>
+        <div class="dy-stay"><strong>住</strong> 东格尔观景台</div>
+    </div>
+    <div class="dy">
+        <div class="dy-h" style="color:var(--d2)">Day 2 · 05.03</div>
+        <div class="dy-route">
+            起 <span class="num">3,200</span><span class="arr">→</span>
+            峰 <span class="num hi">4,120</span><span class="arr">→</span>
+            宿 <span class="num">2,787</span>
+        </div>
+        <div class="dy-tags"><span class="dy-tag r">+920</span><span class="dy-tag b">翻越垭口 -1,333m</span></div>
+        <div class="dy-stay"><strong>住</strong> 祁连县城</div>
+    </div>
+    <div class="dy">
+        <div class="dy-h" style="color:var(--d3)">Day 3 · 05.04</div>
+        <div class="dy-route">
+            起 <span class="num">2,787</span><span class="arr">→</span>
+            峰 <span class="num hi">4,300</span><span class="arr">→</span>
+            宿 <span class="num lo">1,400</span>
+        </div>
+        <div class="dy-tags"><span class="dy-tag r">+1,513m</span><span class="dy-tag b">全程最大落差 -2,900m</span></div>
+        <div class="dy-stay"><strong>住</strong> 张掖市区</div>
+    </div>
+    <div class="dy">
+        <div class="dy-h" style="color:var(--d4)">Day 4 · 05.05</div>
+        <div class="dy-route">
+            起 <span class="num lo">1,400</span><span class="arr">→</span>
+            峰 <span class="num">2,700</span><span class="arr">→</span>
+            宿 <span class="num">2,851</span>
+        </div>
+        <div class="dy-tags"><span class="dy-tag r">回升 +1,451m</span><span class="dy-tag g">相对平缓</span></div>
+        <div class="dy-stay"><strong>住</strong> 门源县城</div>
+    </div>
+    <div class="dy">
+        <div class="dy-h" style="color:var(--d5)">Day 5 · 05.06</div>
+        <div class="dy-route">
+            起 <span class="num">2,851</span><span class="arr">→</span>
+            峰 <span class="num hi">3,800</span><span class="arr">→</span>
+            终 <span class="num">2,188</span>
+        </div>
+        <div class="dy-tags"><span class="dy-tag r">+949</span><span class="dy-tag b">返回西宁 -1,612m</span></div>
+        <div class="dy-stay">返程 西宁机场</div>
     </div>
 </div>
 
-<div class="foot">
-    * 海拔数据综合自公开资料，部分为观景台/通行点海拔，仅供参考
-    <div class="brand">Qinggan Loop / Elevation Profile</div>
+<div class="map-sec anim" style="animation-delay:.6s">
+    <div class="map-lbl">自驾路线总览</div>
+    <div class="map-fr"><div id="mapBox"></div></div>
+</div>
+
+<div class="ft anim" style="animation-delay:.7s">
+    <p>海拔数据综合自公开资料，部分为观景台 / 通行点海拔，仅供参考</p>
+    <div class="sig">Qinggan Loop · Elevation Profile</div>
 </div>
 
 <script>
-var data = [
-    { n: '西宁机场',     f: '西宁曹家堡国际机场',       a: 2188, d: 1, lat: 36.5275, lng: 102.043 },
-    { n: '贾小巷子',     f: '贾小巷子（西宁市区）',     a: 2261, d: 1, lat: 36.6232, lng: 101.778 },
-    { n: '日月山',       f: '日月山景区',               a: 3520, d: 1, lat: 36.5947, lng: 101.092 },
-    { n: '东格尔观景台', f: '青海湖 · 东格尔观景台',    a: 3200, d: 1, s: 1, lat: 36.706, lng: 100.655 },
-    { n: '尕日拉寺',     f: '青海湖 · 尕日拉寺',        a: 3210, d: 2, lat: 36.854, lng: 100.472 },
-    { n: '青海湖断崖',   f: '青海湖断崖',               a: 3196, d: 2, lat: 36.91,  lng: 100.42 },
-    { n: '大冬树山垭口', f: '大冬树山垭口',             a: 4120, d: 2, lat: 37.751, lng: 100.267 },
-    { n: '冰沟林海',     f: '冰沟林海',                 a: 3123, d: 2, lat: 38.129, lng: 100.197 },
-    { n: '祁连县城',     f: '祁连县城',                 a: 2787, d: 2, s: 1, lat: 38.178, lng: 100.254 },
-    { n: '卓尔山',       f: '卓尔山风景区',             a: 3100, d: 3, lat: 38.235, lng: 100.247 },
-    { n: '卓尔后山骑马', f: '卓尔后山骑马营',           a: 3200, d: 3, lat: 38.25,  lng: 100.25 },
-    { n: '黑河大峡谷',   f: '黑河大峡谷',               a: 3400, d: 3, lat: 38.35,  lng: 100.18 },
-    { n: '9号公路垭口',  f: '祁连9号公路垭口',          a: 4300, d: 3, lat: 38.45,  lng: 100.12 },
-    { n: '二尕公路',     f: '二尕公路',                 a: 3800, d: 3, lat: 38.55,  lng: 100.08 },
-    { n: '肃南县',       f: '肃南裕固族自治县',         a: 2250, d: 3, lat: 38.836, lng: 99.616 },
-    { n: '张掖市区',     f: '张掖市区',                 a: 1400, d: 3, s: 1, lat: 38.926, lng: 100.452 },
-    { n: '七彩丹霞',     f: '张掖七彩丹霞景区',         a: 2300, d: 4, lat: 38.95,  lng: 100.113 },
-    { n: '马蹄寺',       f: '马蹄寺风光旅游区',         a: 2700, d: 4, lat: 38.548, lng: 100.335 },
-    { n: '门源县城',     f: '门源回族自治县',           a: 2851, d: 4, s: 1, lat: 37.377, lng: 101.623 },
-    { n: '俄博岭垭口',   f: '俄博岭垭口',               a: 3685, d: 5, lat: 37.78,  lng: 101.35 },
-    { n: '经幡观光点',   f: '祁连山国家公园 · 经幡观光点', a: 3500, d: 5, lat: 37.55, lng: 101.5 },
-    { n: '岗什卡雪峰',   f: '岗什卡雪峰观景区',         a: 3800, d: 5, lat: 37.228, lng: 101.459 },
-    { n: '西宁机场',     f: '西宁曹家堡国际机场',       a: 2188, d: 5, lat: 36.5275, lng: 102.043 },
+var D=[
+{n:'西宁机场',f:'西宁曹家堡国际机场',a:2188,d:1,lat:36.5275,lng:102.043},
+{n:'贾小巷子',f:'贾小巷子（西宁市区）',a:2261,d:1,lat:36.6232,lng:101.778},
+{n:'日月山',f:'日月山景区',a:3520,d:1,lat:36.5947,lng:101.092},
+{n:'东格尔观景台',f:'青海湖 · 东格尔观景台',a:3200,d:1,s:1,lat:36.706,lng:100.655},
+{n:'尕日拉寺',f:'青海湖 · 尕日拉寺',a:3210,d:2,lat:36.854,lng:100.472},
+{n:'青海湖断崖',f:'青海湖断崖',a:3196,d:2,lat:36.91,lng:100.42},
+{n:'大冬树山垭口',f:'大冬树山垭口',a:4120,d:2,lat:37.751,lng:100.267},
+{n:'冰沟林海',f:'冰沟林海',a:3123,d:2,lat:38.129,lng:100.197},
+{n:'祁连县城',f:'祁连县城',a:2787,d:2,s:1,lat:38.178,lng:100.254},
+{n:'卓尔山',f:'卓尔山风景区',a:3100,d:3,lat:38.235,lng:100.247},
+{n:'卓尔后山骑马',f:'卓尔后山骑马营',a:3200,d:3,lat:38.25,lng:100.25},
+{n:'黑河大峡谷',f:'黑河大峡谷',a:3400,d:3,lat:38.35,lng:100.18},
+{n:'9号公路垭口',f:'祁连9号公路垭口',a:4300,d:3,lat:38.45,lng:100.12},
+{n:'二尕公路',f:'二尕公路',a:3800,d:3,lat:38.55,lng:100.08},
+{n:'肃南县',f:'肃南裕固族自治县',a:2250,d:3,lat:38.836,lng:99.616},
+{n:'张掖市区',f:'张掖市区',a:1400,d:3,s:1,lat:38.926,lng:100.452},
+{n:'七彩丹霞',f:'张掖七彩丹霞景区',a:2300,d:4,lat:38.95,lng:100.113},
+{n:'马蹄寺',f:'马蹄寺风光旅游区',a:2700,d:4,lat:38.548,lng:100.335},
+{n:'门源县城',f:'门源回族自治县',a:2851,d:4,s:1,lat:37.377,lng:101.623},
+{n:'俄博岭垭口',f:'俄博岭垭口',a:3685,d:5,lat:37.78,lng:101.35},
+{n:'经幡观光点',f:'祁连山国家公园 · 经幡观光点',a:3500,d:5,lat:37.55,lng:101.5},
+{n:'岗什卡雪峰',f:'岗什卡雪峰观景区',a:3800,d:5,lat:37.228,lng:101.459},
+{n:'西宁机场',f:'西宁曹家堡国际机场',a:2188,d:5,lat:36.5275,lng:102.043}
 ];
+var C={1:'#5b7fc7',2:'#3a9e7c',3:'#d4873a',4:'#c75b5b',5:'#8b6bc7'};
+var CB={1:'rgba(91,127,199,.04)',2:'rgba(58,158,124,.04)',3:'rgba(212,135,58,.04)',4:'rgba(199,91,91,.04)',5:'rgba(139,107,199,.04)'};
 
-var dc = { 1:'#4e7cf6', 2:'#22c088', 3:'#f0a030', 4:'#e85d5d', 5:'#9b6dff' };
-var dbg = { 1:'rgba(78,124,246,0.035)', 2:'rgba(34,192,136,0.035)', 3:'rgba(240,160,48,0.035)', 4:'rgba(232,93,93,0.035)', 5:'rgba(155,109,255,0.035)' };
+var pcs=[],pd=0;
+D.forEach(function(x,i){if(x.d!==pd){pcs.push({gt:i>0?i-1:0,lte:i,color:C[x.d]});pd=x.d}else if(pcs.length)pcs[pcs.length-1].lte=i});
 
-// pieces
-var pcs = [], pd = 0;
-data.forEach(function(x,i) {
-    if (x.d !== pd) { pcs.push({gt:i>0?i-1:0, lte:i, color:dc[x.d]}); pd=x.d; }
-    else if (pcs.length) pcs[pcs.length-1].lte=i;
+var sm=[];D.forEach(function(x,i){if(x.s)sm.push({coord:[i,x.a],symbol:'pin',symbolSize:26,symbolOffset:[0,16],itemStyle:{color:'#b8860b',borderColor:'#faf9f6',borderWidth:2},label:{show:true,formatter:'住',fontSize:9,fontWeight:700,color:'#fff',offset:[0,-2]}})});
+
+var da=[],ds={};
+D.forEach(function(x,i){if(!ds[x.d])ds[x.d]=i});
+Object.keys(ds).forEach(function(k){var s=ds[k],e=s;D.forEach(function(x,i){if(x.d==k)e=i});da.push([{xAxis:D[s].n,itemStyle:{color:CB[k]}},{xAxis:D[e].n}])});
+
+echarts.init(document.getElementById('chart')).setOption({
+animation:true,animationDuration:2000,animationEasing:'cubicOut',
+tooltip:{
+    trigger:'axis',backgroundColor:'rgba(250,249,246,.98)',borderColor:'rgba(0,0,0,.06)',borderRadius:12,
+    padding:[14,18],textStyle:{color:'#1c1917',fontSize:13,fontFamily:'Outfit,Noto Sans SC,sans-serif'},
+    extraCssText:'box-shadow:0 6px 30px rgba(0,0,0,.06);backdrop-filter:blur(8px);',
+    formatter:function(p){
+        var x=D[p[0].dataIndex],lb=['','Day 1 · 05.02','Day 2 · 05.03','Day 3 · 05.04','Day 4 · 05.05','Day 5 · 05.06'];
+        var st=x.s?'<div style="margin-top:8px;font-size:10px;font-weight:600;color:#b8860b;letter-spacing:.5px">当晚住宿</div>':'';
+        var df='';if(p[0].dataIndex>0){var v=x.a-D[p[0].dataIndex-1].a;df='<div style="margin-top:4px;font-size:11px;color:'+(v>0?'#c75b5b':'#5b7fc7')+';font-weight:600">较上一站 '+(v>0?'+':'')+v+'m</div>'}
+        return '<div style="font-size:10px;font-weight:600;color:'+C[x.d]+';letter-spacing:1.5px;margin-bottom:8px">'+lb[x.d]+'</div>'+
+        '<div style="font-family:DM Serif Display,serif;font-size:17px;margin-bottom:6px">'+x.f+'</div>'+
+        '<div style="font-size:30px;font-weight:800;font-family:Outfit;letter-spacing:-1px">'+x.a.toLocaleString()+'<span style="font-size:13px;font-weight:400;color:#a8a29e;margin-left:3px">m</span></div>'+df+st
+    }
+},
+grid:{left:54,right:20,top:28,bottom:88},
+xAxis:{
+    type:'category',data:D.map(function(x){return x.n}),
+    axisLabel:{rotate:42,fontSize:10.5,fontFamily:'Noto Sans SC',fontWeight:500,color:function(v,i){return C[D[i].d]},interval:0,margin:10},
+    axisLine:{lineStyle:{color:'rgba(0,0,0,.05)'}},axisTick:{show:false}
+},
+yAxis:{
+    type:'value',name:'m',nameTextStyle:{color:'#a8a29e',fontSize:10,fontWeight:600},
+    min:1000,max:5000,interval:500,
+    axisLabel:{color:'#a8a29e',fontSize:9,fontFamily:'Outfit',formatter:function(v){return(v/1000).toFixed(1)+'k'}},
+    axisLine:{show:false},splitLine:{lineStyle:{color:'rgba(28,25,23,.03)',type:'dashed'}}
+},
+visualMap:{show:false,dimension:0,pieces:pcs},
+series:[{
+    type:'line',data:D.map(function(x){return x.a}),smooth:.4,
+    symbol:'circle',symbolSize:function(v){return v>=4000?10:v>=3500?8:6},
+    itemStyle:{color:function(p){return C[D[p.dataIndex].d]},borderColor:'var(--paper)',borderWidth:2},
+    lineStyle:{width:2.5,shadowColor:'rgba(91,127,199,.06)',shadowBlur:6,shadowOffsetY:2},
+    areaStyle:{color:new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:'rgba(91,127,199,.07)'},{offset:.5,color:'rgba(58,158,124,.02)'},{offset:1,color:'transparent'}])},
+    label:{show:false},
+    markLine:{silent:true,symbol:'none',lineStyle:{color:'rgba(199,91,91,.12)',type:[5,3],width:1},
+        data:[{yAxis:3000,label:{formatter:'高原反应警戒线 3,000m',position:'insideEndTop',color:'rgba(199,91,91,.35)',fontSize:9,fontWeight:600}}]},
+    markArea:{silent:true,data:da},
+    markPoint:{animation:true,data:[
+        {type:'max',symbolSize:34,label:{formatter:'{c}m',fontSize:9,fontWeight:700},itemStyle:{color:'#c75b5b',shadowColor:'rgba(199,91,91,.12)',shadowBlur:4}},
+        {type:'min',symbolSize:34,symbolOffset:[0,6],label:{formatter:'{c}m',fontSize:9,fontWeight:700},itemStyle:{color:'#5b7fc7',shadowColor:'rgba(91,127,199,.12)',shadowBlur:4}}
+    ].concat(sm)}
+}]
 });
+window.addEventListener('resize',function(){echarts.getInstanceByDom(document.getElementById('chart')).resize()});
 
-// stay marks — 放在数据点下方，避免和顶部标签重叠
-var sm = [];
-data.forEach(function(x,i) {
-    if (x.s) sm.push({
-        coord:[i,x.a], symbol:'pin', symbolSize:28,
-        symbolOffset:[0, 18],
-        itemStyle:{color:'#d4a017',borderColor:'#fff',borderWidth:1.5,shadowColor:'rgba(212,160,23,0.25)',shadowBlur:6},
-        label:{show:true,formatter:'住',fontSize:10,fontWeight:700,color:'#fff',offset:[0,-2]}
-    });
-});
-
-// surge marks — 只用小菱形标记，不显示文字标签（避免重叠），详情看tooltip
-var sg = [];
-for (var i=1;i<data.length;i++) {
-    var df = data[i].a - data[i-1].a;
-    if (Math.abs(df)>=800) sg.push({
-        coord:[i, Math.max(data[i].a, data[i-1].a)],
-        symbol:'diamond', symbolSize:8, symbolOffset:[0,-8],
-        itemStyle:{color: df>0?'rgba(232,93,93,0.5)':'rgba(78,124,246,0.5)', borderColor:'#fff', borderWidth:1},
-        label:{show:false}
-    });
-}
-
-// day areas
-var da=[], ds={};
-data.forEach(function(x,i){if(!ds[x.d])ds[x.d]=i;});
-Object.keys(ds).forEach(function(k){
-    var s=ds[k],e=s; data.forEach(function(x,i){if(x.d==k)e=i;});
-    da.push([{xAxis:data[s].n, itemStyle:{color:dbg[k]}},{xAxis:data[e].n}]);
-});
-
-var chart = echarts.init(document.getElementById('chart'));
-chart.setOption({
-    animation:true, animationDuration:1800, animationEasing:'cubicOut',
-    tooltip:{
-        trigger:'axis', backgroundColor:'#fff', borderColor:'rgba(0,0,0,0.05)', borderRadius:10,
-        padding:[12,16], textStyle:{color:'#1a1f36',fontSize:13,fontFamily:'Inter,Noto Sans SC,sans-serif'},
-        extraCssText:'box-shadow:0 4px 24px rgba(0,0,0,0.06);',
-        formatter:function(p){
-            var x=data[p[0].dataIndex], lb=['','Day 1 / 05.02','Day 2 / 05.03','Day 3 / 05.04','Day 4 / 05.05','Day 5 / 05.06'];
-            var st=x.s?'<div style="margin-top:6px;font-size:10px;font-weight:700;color:#b8860b;letter-spacing:0.5px">STAY / 当晚住宿</div>':'';
-            var df='';
-            if(p[0].dataIndex>0){var v=x.a-data[p[0].dataIndex-1].a;df='<div style="margin-top:4px;font-size:11px;color:'+(v>0?'#e85d5d':'#4e7cf6')+';font-weight:600">较上一站 '+(v>0?'+':'')+v+'m</div>';}
-            return '<div style="font-size:10px;font-weight:700;color:'+dc[x.d]+';letter-spacing:1.5px;margin-bottom:6px">'+lb[x.d]+'</div>'+
-                '<div style="font-size:15px;font-weight:700;margin-bottom:4px">'+x.f+'</div>'+
-                '<div style="font-size:28px;font-weight:800;font-family:Inter;letter-spacing:-1px">'+x.a.toLocaleString()+'<span style="font-size:13px;font-weight:400;color:#9ca3c2;margin-left:3px">m</span></div>'+df+st;
-        }
-    },
-    grid:{left:56,right:24,top:32,bottom:90},
-    xAxis:{
-        type:'category', data:data.map(function(x){return x.n;}),
-        axisLabel:{rotate:45,fontSize:10.5,fontFamily:'Noto Sans SC',fontWeight:500,color:function(v,i){return dc[data[i].d];},interval:0,margin:10},
-        axisLine:{lineStyle:{color:'rgba(0,0,0,0.05)'}}, axisTick:{show:false}
-    },
-    yAxis:{
-        type:'value', name:'m', nameTextStyle:{color:'#c5cbe0',fontSize:10,fontWeight:600},
-        min:1000,max:5000,interval:500,
-        axisLabel:{color:'#c5cbe0',fontSize:9,fontFamily:'Inter',formatter:function(v){return(v/1000).toFixed(1)+'k';}},
-        axisLine:{show:false}, splitLine:{lineStyle:{color:'rgba(0,0,0,0.03)',type:'dashed'}}
-    },
-    visualMap:{show:false,dimension:0,pieces:pcs},
-    series:[{
-        type:'line',data:data.map(function(x){return x.a;}),smooth:0.35,
-        symbol:'circle',
-        symbolSize:function(v){return v>=4000?10:v>=3500?8:6;},
-        itemStyle:{color:function(p){return dc[data[p.dataIndex].d];},borderColor:'#fff',borderWidth:2},
-        lineStyle:{width:2.5,shadowColor:'rgba(78,124,246,0.08)',shadowBlur:8,shadowOffsetY:3},
-        areaStyle:{color:new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:'rgba(78,124,246,0.08)'},{offset:0.5,color:'rgba(34,192,136,0.03)'},{offset:1,color:'transparent'}])},
-        label:{
-            show:false
-        },
-        markLine:{
-            silent:true,symbol:'none',
-            lineStyle:{color:'rgba(232,93,93,0.15)',type:[5,3],width:1},
-            data:[{yAxis:3000,label:{formatter:'高原反应警戒线 3,000m',position:'insideEndTop',color:'rgba(232,93,93,0.4)',fontSize:9,fontWeight:600}}]
-        },
-        markArea:{silent:true,data:da},
-        markPoint:{animation:true,data:[
-            {type:'max',symbolSize:36,label:{formatter:'{c}m',fontSize:9,fontWeight:700},itemStyle:{color:'#e85d5d',shadowColor:'rgba(232,93,93,0.15)',shadowBlur:6}},
-            {type:'min',symbolSize:36,symbolOffset:[0,6],label:{formatter:'{c}m',fontSize:9,fontWeight:700},itemStyle:{color:'#4e7cf6',shadowColor:'rgba(78,124,246,0.15)',shadowBlur:6}}
-        ].concat(sm).concat(sg)}
-    }]
-});
-window.addEventListener('resize',function(){chart.resize();});
-
-// ====== 地图 ======
-var map = new TMap.Map('mapContainer',{center:new TMap.LatLng(37.8,100.5),zoom:7,mapStyleId:'style1'});
+// ---- 地图 ----
+var map=new TMap.Map('mapBox',{center:new TMap.LatLng(37.8,100.5),zoom:7,mapStyleId:'style1'});
 var ms={};
 for(var d=1;d<=5;d++){
-    ms['d'+d]=new TMap.MarkerStyle({width:20,height:20,anchor:{x:10,y:10},
-        src:'data:image/svg+xml,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"><circle cx="10" cy="10" r="8" fill="'+dc[d]+'" stroke="#fff" stroke-width="2"/><circle cx="10" cy="10" r="3" fill="#fff"/></svg>')});
-    ms['s'+d]=new TMap.MarkerStyle({width:28,height:28,anchor:{x:14,y:14},
-        src:'data:image/svg+xml,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28"><circle cx="14" cy="14" r="12" fill="#d4a017" stroke="#fff" stroke-width="2"/><text x="14" y="19" text-anchor="middle" font-size="11" font-weight="700" fill="#fff" font-family="sans-serif">住</text></svg>')});
+    ms['d'+d]=new TMap.MarkerStyle({width:18,height:18,anchor:{x:9,y:9},src:'data:image/svg+xml,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"><circle cx="9" cy="9" r="7" fill="'+C[d]+'" stroke="#faf9f6" stroke-width="2"/><circle cx="9" cy="9" r="2.5" fill="#faf9f6"/></svg>')});
+    ms['s'+d]=new TMap.MarkerStyle({width:26,height:26,anchor:{x:13,y:13},src:'data:image/svg+xml,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="26" height="26"><circle cx="13" cy="13" r="11" fill="#b8860b" stroke="#faf9f6" stroke-width="2"/><text x="13" y="18" text-anchor="middle" font-size="10" font-weight="700" fill="#faf9f6" font-family="sans-serif">住</text></svg>')});
 }
 var geos=[],seen={};
-data.forEach(function(x,i){
-    var k=x.lat+','+x.lng; if(seen[k]&&!x.s)return; seen[k]=1;
-    geos.push({id:'p'+i,styleId:x.s?'s'+x.d:'d'+x.d,position:new TMap.LatLng(x.lat,x.lng)});
-});
+D.forEach(function(x,i){var k=x.lat+','+x.lng;if(seen[k]&&!x.s)return;seen[k]=1;geos.push({id:'p'+i,styleId:x.s?'s'+x.d:'d'+x.d,position:new TMap.LatLng(x.lat,x.lng)})});
 new TMap.MultiMarker({map:map,styles:ms,geometries:geos});
 new TMap.MultiPolyline({map:map,
-    styles:{r:new TMap.PolylineStyle({color:'#2c3e6b',width:4,borderWidth:2,borderColor:'rgba(44,62,107,0.2)',lineCap:'round',dashArray:[8,4]})},
-    geometries:[{id:'r',styleId:'r',paths:data.map(function(x){return new TMap.LatLng(x.lat,x.lng);})}]
+    styles:{r:new TMap.PolylineStyle({color:'#292524',width:3,borderWidth:1,borderColor:'rgba(41,37,36,.15)',lineCap:'round',dashArray:[10,5]})},
+    geometries:[{id:'r',styleId:'r',paths:D.map(function(x){return new TMap.LatLng(x.lat,x.lng)})}]
 });
 </script>
 </body>
