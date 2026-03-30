@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
 <title>青甘小环线 · 海拔变化</title>
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
-<script src="https://map.qq.com/api/gljs?v=3&key=H4VBZ-YGC34-PQKU2-FRG33-JNNQH-ZKB5R&libraries=service"></script>
+
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Outfit:wght@300;400;500;600;700;800&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -105,12 +105,6 @@ body::after{
 .dy-stay{font-size:10px;color:var(--ink4);margin-top:8px;font-weight:500}
 .dy-stay strong{color:var(--gold);font-weight:700}
 
-/* ---- 地图 ---- */
-.map-sec{max-width:800px;margin:48px auto 0;padding:0 28px}
-.map-lbl{font-size:10px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--ink4);margin-bottom:12px}
-.map-fr{border-radius:20px;overflow:hidden;border:1px solid var(--line)}
-#mapBox{width:100%;height:400px}
-
 /* ---- Footer ---- */
 .ft{max-width:800px;margin:0 auto;padding:36px 28px 56px;text-align:center;border-top:1px solid var(--line);margin-top:48px}
 .ft p{font-size:11px;color:var(--ink4);line-height:1.8}
@@ -133,7 +127,6 @@ body::after{
     .dy:nth-child(odd){border-right:1px solid var(--line)}
     .dy:nth-child(even){border-right:none}
     .dy:nth-child(5){grid-column:span 2;border-right:none}
-    #mapBox{height:300px}
 }
 @media(max-width:480px){
     .hdr h1{font-size:28px}
@@ -143,7 +136,6 @@ body::after{
     .dy{border-right:none!important;border-bottom:1px solid var(--line)}
     .dy:last-child{border-bottom:none}
     .dy:nth-child(5){grid-column:span 1}
-    #mapBox{height:260px}
 }
 </style>
 </head>
@@ -233,41 +225,36 @@ body::after{
     </div>
 </div>
 
-<div class="map-sec anim" style="animation-delay:.6s">
-    <div class="map-lbl">自驾路线总览</div>
-    <div class="map-fr"><div id="mapBox"></div></div>
-</div>
-
-<div class="ft anim" style="animation-delay:.7s">
+<div class="ft anim" style="animation-delay:.6s">
     <p>海拔数据综合自公开资料，部分为观景台 / 通行点海拔，仅供参考</p>
     <div class="sig">Qinggan Loop · Elevation Profile</div>
 </div>
 
 <script>
 var D=[
-{n:'西宁机场',f:'西宁曹家堡国际机场',a:2188,d:1,lat:36.5275,lng:102.043},
-{n:'贾小巷子',f:'贾小巷子（西宁市区）',a:2261,d:1,lat:36.6232,lng:101.778},
-{n:'日月山',f:'日月山景区',a:3520,d:1,lat:36.5947,lng:101.092},
-{n:'东格尔观景台',f:'青海湖 · 东格尔观景台',a:3200,d:1,s:1,lat:36.706,lng:100.655},
-{n:'尕日拉寺',f:'青海湖 · 尕日拉寺',a:3210,d:2,lat:36.854,lng:100.472},
-{n:'青海湖断崖',f:'青海湖断崖',a:3196,d:2,lat:36.91,lng:100.42},
-{n:'大冬树山垭口',f:'大冬树山垭口',a:4120,d:2,lat:37.751,lng:100.267},
-{n:'冰沟林海',f:'冰沟林海',a:3123,d:2,lat:38.129,lng:100.197},
-{n:'祁连县城',f:'祁连县城',a:2787,d:2,s:1,lat:38.178,lng:100.254},
-{n:'卓尔山',f:'卓尔山风景区',a:3100,d:3,lat:38.235,lng:100.247},
-{n:'卓尔后山骑马',f:'卓尔后山骑马营',a:3200,d:3,lat:38.25,lng:100.25},
-{n:'黑河大峡谷',f:'黑河大峡谷',a:3400,d:3,lat:38.35,lng:100.18},
-{n:'9号公路垭口',f:'祁连9号公路垭口',a:4300,d:3,lat:38.45,lng:100.12},
-{n:'二尕公路',f:'二尕公路',a:3800,d:3,lat:38.55,lng:100.08},
-{n:'肃南县',f:'肃南裕固族自治县',a:2250,d:3,lat:38.836,lng:99.616},
-{n:'张掖市区',f:'张掖市区',a:1400,d:3,s:1,lat:38.926,lng:100.452},
-{n:'七彩丹霞',f:'张掖七彩丹霞景区',a:2300,d:4,lat:38.95,lng:100.113},
-{n:'马蹄寺',f:'马蹄寺风光旅游区',a:2700,d:4,lat:38.548,lng:100.335},
-{n:'门源县城',f:'门源回族自治县',a:2851,d:4,s:1,lat:37.377,lng:101.623},
-{n:'俄博岭垭口',f:'俄博岭垭口',a:3685,d:5,lat:37.78,lng:101.35},
-{n:'经幡观光点',f:'祁连山国家公园 · 经幡观光点',a:3500,d:5,lat:37.55,lng:101.5},
-{n:'岗什卡雪峰',f:'岗什卡雪峰观景区',a:3800,d:5,lat:37.228,lng:101.459},
-{n:'西宁机场',f:'西宁曹家堡国际机场',a:2188,d:5,lat:36.5275,lng:102.043}
+{n:'西宁机场',f:'西宁曹家堡国际机场',a:2188,d:1},
+{n:'贾小巷子',f:'贾小巷子（西宁市区）',a:2261,d:1},
+{n:'日月山',f:'日月山景区',a:3520,d:1},
+{n:'东格尔观景台',f:'青海湖 · 东格尔观景台',a:3200,d:1,s:1},
+{n:'尕日拉寺',f:'青海湖 · 尕日拉寺',a:3210,d:2},
+{n:'青海湖断崖',f:'青海湖断崖',a:3196,d:2},
+{n:'大冬树山垭口',f:'大冬树山垭口',a:4120,d:2},
+{n:'冰沟林海',f:'冰沟林海',a:3123,d:2},
+{n:'祁连县城',f:'祁连县城',a:2787,d:2,s:1},
+{n:'卓尔山',f:'卓尔山风景区',a:3100,d:3},
+{n:'卓尔后山骑马',f:'卓尔后山骑马营',a:3200,d:3},
+{n:'黑河大峡谷',f:'黑河大峡谷',a:3400,d:3},
+{n:'9号公路垭口',f:'祁连9号公路垭口',a:4300,d:3},
+{n:'二尕公路',f:'二尕公路',a:3800,d:3},
+{n:'肃南县',f:'肃南裕固族自治县',a:2250,d:3},
+{n:'张掖市区',f:'张掖市区',a:1400,d:3,s:1},
+{n:'七彩丹霞',f:'张掖七彩丹霞景区',a:2300,d:4},
+{n:'马蹄寺',f:'马蹄寺风光旅游区',a:2700,d:4},
+{n:'门源县城',f:'门源回族自治县',a:2851,d:4,s:1},
+{n:'俄博岭垭口',f:'俄博岭垭口',a:3685,d:5},
+{n:'经幡观光点',f:'祁连山国家公园 · 经幡观光点',a:3500,d:5},
+{n:'岗什卡雪峰',f:'岗什卡雪峰观景区',a:3800,d:5},
+{n:'西宁机场',f:'西宁曹家堡国际机场',a:2188,d:5}
 ];
 var C={1:'#5b7fc7',2:'#3a9e7c',3:'#d4873a',4:'#c75b5b',5:'#8b6bc7'};
 var CB={1:'rgba(91,127,199,.04)',2:'rgba(58,158,124,.04)',3:'rgba(212,135,58,.04)',4:'rgba(199,91,91,.04)',5:'rgba(139,107,199,.04)'};
@@ -327,20 +314,6 @@ series:[{
 });
 window.addEventListener('resize',function(){echarts.getInstanceByDom(document.getElementById('chart')).resize()});
 
-// ---- 地图 ----
-var map=new TMap.Map('mapBox',{center:new TMap.LatLng(37.8,100.5),zoom:7,mapStyleId:'style1'});
-var ms={};
-for(var d=1;d<=5;d++){
-    ms['d'+d]=new TMap.MarkerStyle({width:18,height:18,anchor:{x:9,y:9},src:'data:image/svg+xml,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"><circle cx="9" cy="9" r="7" fill="'+C[d]+'" stroke="#faf9f6" stroke-width="2"/><circle cx="9" cy="9" r="2.5" fill="#faf9f6"/></svg>')});
-    ms['s'+d]=new TMap.MarkerStyle({width:26,height:26,anchor:{x:13,y:13},src:'data:image/svg+xml,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="26" height="26"><circle cx="13" cy="13" r="11" fill="#b8860b" stroke="#faf9f6" stroke-width="2"/><text x="13" y="18" text-anchor="middle" font-size="10" font-weight="700" fill="#faf9f6" font-family="sans-serif">住</text></svg>')});
-}
-var geos=[],seen={};
-D.forEach(function(x,i){var k=x.lat+','+x.lng;if(seen[k]&&!x.s)return;seen[k]=1;geos.push({id:'p'+i,styleId:x.s?'s'+x.d:'d'+x.d,position:new TMap.LatLng(x.lat,x.lng)})});
-new TMap.MultiMarker({map:map,styles:ms,geometries:geos});
-new TMap.MultiPolyline({map:map,
-    styles:{r:new TMap.PolylineStyle({color:'#292524',width:3,borderWidth:1,borderColor:'rgba(41,37,36,.15)',lineCap:'round',dashArray:[10,5]})},
-    geometries:[{id:'r',styleId:'r',paths:D.map(function(x){return new TMap.LatLng(x.lat,x.lng)})}]
-});
 </script>
 </body>
 </html>
